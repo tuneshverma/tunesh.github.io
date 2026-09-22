@@ -1,318 +1,132 @@
 <!DOCTYPE html>
-<html class="no-js" lang="en">
-
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>My Portfolio</title>
-	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-	<link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900" rel="stylesheet">
-    <link rel="stylesheet" href="libs/font-awesome/css/font-awesome.min.css">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tunesh Verma — AI/ML Engineer specializing in Generative AI, Multi-Agent Systems, Voice AI, RAG and Computer Vision." />
+  <title>Tunesh Verma — AI/ML Engineer</title>
+  <style>
+    :root {
+      --bg:#07090d; --surface:#0d1118; --surface2:#111722; --text:#eef2f7;
+      --muted:#929cab; --line:#202733; --accent:#7c8cff; --accent2:#42e8c3;
+      --max:1160px; --radius:20px;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;background:radial-gradient(circle at 75% 10%,rgba(124,140,255,.13),transparent 28rem),radial-gradient(circle at 10% 30%,rgba(66,232,195,.06),transparent 24rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6}
+    a{color:inherit;text-decoration:none}.container{width:min(var(--max),calc(100% - 40px));margin:auto}
+    nav{position:sticky;top:0;z-index:20;background:rgba(7,9,13,.76);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav{height:72px;display:flex;align-items:center;justify-content:space-between}.brand{font-weight:800;letter-spacing:-.03em}
+    .brand span{color:var(--accent2)}.navlinks{display:flex;gap:25px;font-size:14px;color:var(--muted)}.navlinks a:hover{color:var(--text)}
+    .hero{min-height:calc(100vh - 72px);display:grid;grid-template-columns:1.2fr .8fr;gap:60px;align-items:center;padding:80px 0}
+    .eyebrow{color:var(--accent2);font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+    h1{font-size:clamp(52px,8vw,92px);line-height:.95;letter-spacing:-.065em;margin:18px 0 28px;max-width:850px}
+    .gradient{background:linear-gradient(100deg,#fff 15%,#aeb8ff 55%,#61f0cf);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .hero p{font-size:19px;color:var(--muted);max-width:680px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+    .btn{padding:13px 18px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:14px}
+    .btn.primary{background:var(--text);color:#07090d;border-color:var(--text)}.btn:hover{transform:translateY(-2px)}
+    .orb{height:420px;border:1px solid var(--line);border-radius:32px;background:linear-gradient(145deg,rgba(124,140,255,.13),rgba(66,232,195,.03));position:relative;overflow:hidden}
+    .orb:before,.orb:after{content:"";position:absolute;border:1px solid rgba(124,140,255,.25);border-radius:50%;inset:16%;transform:rotate(20deg)}.orb:after{inset:30%;border-color:rgba(66,232,195,.25);transform:rotate(-35deg)}
+    .node{position:absolute;padding:12px 14px;border:1px solid #303949;background:rgba(13,17,24,.88);border-radius:12px;font-size:12px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+    .n1{top:17%;left:12%}.n2{top:40%;right:10%}.n3{bottom:17%;left:18%}.n4{bottom:27%;right:24%}
+    section{padding:105px 0;border-top:1px solid rgba(255,255,255,.05)}.section-head{display:flex;justify-content:space-between;gap:30px;margin-bottom:38px}
+    .kicker{color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.14em;font-weight:800}.section-head h2{font-size:42px;letter-spacing:-.045em;margin:8px 0}.section-head p{color:var(--muted);max-width:500px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015));border:1px solid var(--line);border-radius:var(--radius);padding:24px}.card h3{margin:0 0 9px;font-size:20px}.card p{color:var(--muted);font-size:14px;margin:0}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:32px 0}.metric{padding:22px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}.metric strong{font-size:30px;letter-spacing:-.04em;display:block}.metric span{font-size:12px;color:var(--muted)}
+    .project{grid-column:span 2}.project .tag{display:inline-block;color:var(--accent2);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+    .project ul{margin:14px 0 0;padding-left:18px;color:var(--muted);font-size:14px}.project li{margin:6px 0}
+    .timeline{position:relative;margin-left:9px;border-left:1px solid #2a3240}.job{padding:0 0 42px 30px;position:relative}.job:before{content:"";position:absolute;left:-5px;top:7px;width:9px;height:9px;border-radius:50%;background:var(--accent2);box-shadow:0 0 0 5px var(--bg)}
+    .job-top{display:flex;justify-content:space-between;gap:20px}.job h3{margin:0;font-size:19px}.job time{font-size:12px;color:var(--muted);white-space:nowrap}.job .role{color:var(--accent);font-size:13px}.job p{color:var(--muted);font-size:14px;max-width:850px}
+    .tags{display:flex;flex-wrap:wrap;gap:9px}.tagpill{padding:8px 11px;border:1px solid var(--line);border-radius:999px;color:#cbd2dd;background:rgba(255,255,255,.02);font-size:12px}
+    .contact{display:grid;grid-template-columns:1fr auto;align-items:center;gap:30px}.contact h2{font-size:52px;line-height:1;letter-spacing:-.05em;margin:10px 0}.contact p{color:var(--muted)}
+    footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between}
+    .reveal{opacity:0;transform:translateY(18px);transition:.7s ease}.reveal.show{opacity:1;transform:none}
+    @media(max-width:850px){.hero{grid-template-columns:1fr;padding:65px 0}.orb{height:300px}.grid{grid-template-columns:1fr}.project{grid-column:span 1}.metrics{grid-template-columns:repeat(2,1fr)}.navlinks{display:none}.section-head{display:block}.contact{grid-template-columns:1fr}.contact h2{font-size:42px}}
+    @media(max-width:480px){.container{width:min(var(--max),calc(100% - 28px))}.metrics{grid-template-columns:1fr 1fr}.hero p{font-size:16px}h1{font-size:52px}}
+  </style>
 </head>
-
 <body>
-    <div id="mobile-menu-open" class="shadow-large">
-        <i class="fa fa-bars" aria-hidden="true"></i>
+<nav><div class="container nav">
+  <a class="brand" href="#">TV<span>.</span></a>
+  <div class="navlinks"><a href="#work">Work</a><a href="#experience">Experience</a><a href="#skills">Skills</a><a href="#contact">Contact</a></div>
+</div></nav>
+
+<main>
+<section class="hero container">
+  <div class="reveal">
+    <div class="eyebrow">AI / ML Engineer · Generative AI · Agentic Systems</div>
+    <h1>I build AI systems that <span class="gradient">think, talk, see, and act.</span></h1>
+    <p>7+ years building production AI across generative AI, multi-agent systems, realtime voice, RAG, computer vision, and MLOps.</p>
+    <div class="actions">
+      <a class="btn primary" href="#work">Explore my work ↓</a>
+      <a class="btn" href="mailto:tunesh.verma@gmail.com">Email me</a>
     </div>
-    <!-- End #mobile-menu-toggle -->
-    <header>
-        <div id="mobile-menu-close">
-            <span>Close</span> <i class="fa fa-times" aria-hidden="true"></i>
-        </div>
-        <ul id="menu" class="shadow">
-            <li>
-                <a href="#about">About</a>
-            </li>
-            <li>
-                <a href="#experience">Experience</a>
-            </li>
-            <li>
-                <a href="#education">Education</a>
-            </li>
-            <li>
-                <a href="#projects">Projects</a>
-            </li>
-            <li>
-                <a href="#skills">Skills</a>
-            </li>
-            <li>
-                <a href="#contact">Contact</a>
-            </li>
-        </ul>
-    </header>
-    <!-- End header -->
+  </div>
+  <div class="orb reveal" aria-label="Abstract AI system visualization">
+    <div class="node n1">Realtime Voice</div><div class="node n2">Multi-Agent</div>
+    <div class="node n3">RAG + LLMs</div><div class="node n4">Computer Vision</div>
+  </div>
+</section>
 
-    <div id="lead">
-        <div id="lead-content">
-            <h1>TUNESH VERMA</h1>
-            <h2>DEEP LEARNING RESEARCHER</h2>
-            <a href="resume/Resume.pdf" download="Resume.pdf" class="btn-rounded-white">Download Resume</a>
-        </div>
-        <!-- End #lead-content -->
+<section id="work"><div class="container">
+  <div class="section-head reveal"><div><div class="kicker">01 / What I build</div><h2>From models to production systems.</h2></div><p>My work spans the full AI stack—from perception and retrieval to realtime conversational agents, orchestration and production infrastructure.</p></div>
+  <div class="grid">
+    <div class="card reveal"><h3>Agentic AI</h3><p>Planner, router, tools and specialized agents using LangGraph/LangChain for complex AI workflows.</p></div>
+    <div class="card reveal"><h3>Realtime Voice AI</h3><p>Low-latency conversational systems using OpenAI Realtime API and WebSockets.</p></div>
+    <div class="card reveal"><h3>LLM + RAG</h3><p>Grounded enterprise assistants with embeddings, retrieval, reranking, prompting and knowledge pipelines.</p></div>
+    <div class="card reveal"><h3>Computer Vision</h3><p>Production pipelines spanning detection, tracking, pose estimation, segmentation and visual inspection.</p></div>
+    <div class="card reveal"><h3>MLOps / Cloud</h3><p>AWS, Azure, GCP, Docker, Kubernetes, Airflow, SageMaker and production model deployment.</p></div>
+    <div class="card reveal"><h3>Production AI</h3><p>Systems designed around latency, scale, evaluation, reporting, validation and real-world usage.</p></div>
+  </div>
+</div></section>
 
-        <div id="lead-overlay"></div>
+<section><div class="container">
+  <div class="section-head reveal"><div><div class="kicker">02 / Current work</div><h2>PraxisPro AI</h2></div><p>Building the AI layer for PraxisPlay, an AI-powered pharmaceutical sales-training roleplay platform.</p></div>
+  <div class="metrics reveal">
+    <div class="metric"><strong>500ms–1.6s</strong><span>end-to-end response latency</span></div>
+    <div class="metric"><strong>240–420</strong><span>HCP personas across clients</span></div>
+    <div class="metric"><strong>150K+</strong><span>Q&A pairs generated/client knowledge base</span></div>
+    <div class="metric"><strong>~1,000</strong><span>users · 160–180 sessions/week</span></div>
+  </div>
+  <div class="grid">
+    <div class="card project reveal"><span class="tag">PraxisPlay</span><h3>Realtime multi-agent roleplay</h3><ul><li>Persona-based HCP conversations powered by OpenAI Realtime API.</li><li>Observer agent nudges the conversation agent toward topic direction, natural transitions and context-aware closures.</li><li>Automated post-call reporting with structured scores and compliance/factual validation across 100+ test scenarios.</li></ul></div>
+    <div class="card project reveal"><span class="tag">PraxisCertify</span><h3>Deterministic certification conversations</h3><ul><li>Extended the conversational architecture into certification workflows.</li><li>Global summary reporting for certification outcomes.</li></ul></div>
+    <div class="card project reveal"><span class="tag">PraxisCoach</span><h3>Configurable coaching flows</h3><ul><li>Static configurable question flow with dynamic reports generated from responses.</li><li>Analytics for score trends and manager-facing coaching/performance insights.</li></ul></div>
+  </div>
+</div></section>
 
-        <div id="lead-down">
-            <span>
-                <i class="fa fa-chevron-down" aria-hidden="true"></i>
-            </span>
-        </div>
-        <!-- End #lead-down -->
-    </div>
-    <!-- End #lead -->
+<section id="experience"><div class="container">
+  <div class="section-head reveal"><div><div class="kicker">03 / Experience</div><h2>A decade of learning. 7+ years in AI.</h2></div></div>
+  <div class="timeline">
+    <div class="job reveal"><div class="job-top"><div><h3>PraxisPro AI</h3><div class="role">Senior AI Researcher · Contractor</div></div><time>Apr 2025 — Present</time></div><p>Realtime conversational AI, multi-agent architecture, persona systems, knowledge grounding, evaluation, reporting and analytics.</p></div>
+    <div class="job reveal"><div class="job-top"><div><h3>Mindnerves Technology</h3><div class="role">AI Engineer · Freelance</div></div><time>Feb — Mar 2025</time></div><p>Healthcare recommendation and chat content delivery using RAG over content descriptions with reranking.</p></div>
+    <div class="job reveal"><div class="job-top"><div><h3>Sasken Technology</h3><div class="role">Senior AI Engineer</div></div><time>Dec 2024 — Feb 2025</time></div><p>WebSocket-based realtime communication for route-planning software in automotive.</p></div>
+    <div class="job reveal"><div class="job-top"><div><h3>Tekonika</h3><div class="role">AI Engineer · Freelance</div></div><time>Nov — Dec 2024</time></div><p>POC for a RAG conversational pipeline with chat models for food-industry clients.</p></div>
+    <div class="job reveal"><div class="job-top"><div><h3>Webtiga</h3><div class="role">AI Team Lead · Bangalore</div></div><time>Oct 2023 — Nov 2024</time></div><p>Built Create Agent, a GenAI agent orchestration platform, and Create Brain, an Airflow/SageMaker training and deployment pipeline. Worked on enterprise AI products including insurance, healthcare and recovery-counseling use cases.</p></div>
+    <div class="job reveal"><div class="job-top"><div><h3>Vision Group</h3><div class="role">Machine Learning Engineer · Bangalore</div></div><time>Jul 2020 — Sep 2023</time></div><p>Production computer vision including autonomous retail, shelf/planogram analysis, edge inference and retail conversational AI POCs.</p></div>
+    <div class="job reveal"><div class="job-top"><div><h3>Freelancer</h3><div class="role">CV Engineer · Bangalore</div></div><time>Feb — Jun 2020</time></div><p>Pose-estimation push-up counter and brake-pad visual inspection using OpenCV and template/edge-based methods.</p></div>
+    <div class="job reveal"><div class="job-top"><div><h3>MintM</h3><div class="role">CV Engineer · Bangalore</div></div><time>Mar 2019 — Jan 2020</time></div><p>Multi-camera retail people counting, tracking, heatmaps, gender classification and barcode detection for Return-to-Vendor workflows.</p></div>
+    <div class="job reveal"><div class="job-top"><div><h3>Synergy Labs</h3><div class="role">Deep Learning Research Intern · Gurugram</div></div><time>Jun — Dec 2018</time></div><p>One-shot facial recognition and document table detection for data extraction.</p></div>
+  </div>
+</div></section>
 
-    <div id="about">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <h2 class="heading">About Me</h2>
-                </div>
-                <div class="col-md-8">
-                    <p>
-                        A Deep Learning Researcher who likes working on problems which solve some real-life problems. With proven mettle in Machine Learning, I am looking for a place where I am continuously working on a project which I believe is somehow making human lives easier.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- End #about -->
+<section id="skills"><div class="container">
+  <div class="section-head reveal"><div><div class="kicker">04 / Technology</div><h2>Tools I work with.</h2></div></div>
+  <div class="tags reveal">
+    <span class="tagpill">OpenAI Realtime API</span><span class="tagpill">Voice AI</span><span class="tagpill">Multi-Agent Systems</span><span class="tagpill">Agentic AI</span><span class="tagpill">RAG</span><span class="tagpill">Re-ranking</span><span class="tagpill">Vector Embeddings</span><span class="tagpill">LangChain</span><span class="tagpill">LangGraph</span><span class="tagpill">HuggingFace</span><span class="tagpill">LLMs</span><span class="tagpill">Fine-tuning</span><span class="tagpill">Prompt Engineering</span><span class="tagpill">NLP</span><span class="tagpill">Python</span><span class="tagpill">GoLang</span><span class="tagpill">TypeScript</span><span class="tagpill">C++</span><span class="tagpill">SQL</span><span class="tagpill">PyTorch</span><span class="tagpill">TensorFlow</span><span class="tagpill">Keras</span><span class="tagpill">YOLO</span><span class="tagpill">OpenCV</span><span class="tagpill">MediaPipe</span><span class="tagpill">AWS</span><span class="tagpill">Azure</span><span class="tagpill">GCP</span><span class="tagpill">Docker</span><span class="tagpill">Kubernetes</span><span class="tagpill">Airflow</span><span class="tagpill">DeepStream</span><span class="tagpill">MLOps</span><span class="tagpill">PostgreSQL</span><span class="tagpill">WebSockets</span>
+  </div>
+</div></section>
 
-    <div id="experience" class="background-alt">
-        <h2 class="heading">Experience</h2>
-        <div id="experience-timeline">
-            <div data-date="August 2018 – Current">
-                <h3>Synergy labs</h3>
-                <h4>Deep Learning Research Intern</h4>
-                <p>
-                    I worked on two projects one was Facial Recognition Attendance System which facilitates a company to mark attendance of their employees and second was video and image captioning to generate captions and automatically tag them to make them searchable.
-                </p>
-            </div>
+<section id="contact"><div class="container contact reveal">
+  <div><div class="kicker">05 / Contact</div><h2>Let's build something intelligent.</h2><p>Based in Bangalore, India · AI/ML · Generative AI · Agentic Systems</p></div>
+  <div class="actions"><a class="btn primary" href="mailto:tunesh.verma@gmail.com">tunesh.verma@gmail.com</a><a class="btn" href="resume/Resume.pdf">Download résumé</a><a class="btn" href="https://github.com/tuneshverma" target="_blank" rel="noopener">GitHub</a><a class="btn" href="https://www.linkedin.com/in/tunesh-verma-028008102/" target="_blank" rel="noopener">LinkedIn</a></div>
+</div></section>
+</main>
 
-        </div>
-    </div>
-    <!-- End #experience -->
-
-    <div id="education">
-        <h2 class="heading">Education</h2>
-        <div class="education-block">
-            <h3>Ajay Kumar Garg Engineering Technology, Ghaziabad</h3>
-            <span class="education-date">Aug 2014 - June 2018</span>
-            <h4>Bachelor of Technology in Information Technology</h4>
-            
-        </div>
-        <!-- End .education-block -->
-
-        <div class="education-block">
-            <h3>St. Francis Convent School, Agra</h3>
-            <span class="education-date">Apr 2008 - June 2013</span>
-            <h4>Central Board of Secondary Education (CBSE) Examination</h4>
-            <p>
-                Secured 89% overall with PCM 
-            <p>
-        </div>
-        <!-- End .education-block -->
-    </div>
-    <!-- End #education -->
-
-    <div id="projects" class="background-alt">
-        <h2 class="heading">Projects</h2>
-        <div class="container">
-            <div class="row">
-
-                <div class="project shadow-large">
-                    <div class="project-image">
-                        <img src="images/WhatsApp Image 2019-01-07 at 12.52.51 PM.jpeg" />
-                    </div>
-                    <!-- End .project-image -->
-                    <div class="project-info">
-                        <h3>Video and Image Captioning System</h3>
-                        <p>
-                            The model generates caption for videos and images almost instantly to tag them automatically so that they can be searched any time by only keywords. 
-                        </p>
-                        
-                    </div>
-                    <!-- End .project-info -->
-                </div>
-
-                <div class="project shadow-large">
-                    <div class="project-image">
-                        <img src="images/eu-004-page-008-22.jpg" />
-                    </div>
-                    <!-- End .project-image -->
-                    <div class="project-info">
-                        <h3>Table Detection and Data Extraction from document.</h3>
-                        <p>
-                            Deep neural-net model to detect tables and its cells to extract data stored in unstructured scanned documents so that data can be used for further analysis. The model was trained using darknet an open source neural network framework. It automates the manual work of data extraction from tables.
-                        </p>
-                        
-                    </div>
-                    <!-- End .project-info -->
-                </div>
-
-
-                <div class="project shadow-large">
-                    <div class="project-image">
-                        <img src="images/recface.png" />
-                    </div>
-                    <!-- End .project-image -->
-                    <div class="project-info">
-                        <h3>Facial Recognition Attendance</h3>
-                        <p>
-                            This system facilitates a company to mark attendance of their employees the moment they step into their office, without doing any additional work.
-                        </p>
-                        <!-- <a href="#">View Project</a> -->
-                    </div>
-                    <!-- End .project-info -->
-                </div>
-                <!-- End .project -->
-
-                <div class="project shadow-large">
-                    <div class="project-image">
-                        <img src="images/_0_884.jpeg" />
-                    </div>
-                    <!-- End .project-image -->
-                    <div class="project-info">
-                        <h3>Blood Cell Recognition</h3>
-                        <p>
-                            The task was to classify the different type of cells found in blood. Data consists of blood cell images that were trained using CNN.
-                            It is an automated method to detect and classify blood cell will decrease the amount of time required.
-                        </p>
-                        <a href="https://github.com/tunesh/Blood-cell-classifier">View Project</a>
-                    </div>
-                    <!-- End .project-info -->
-                </div>
-                <!-- End .project -->
-                <div class="project shadow-large">
-                    <div class="project-image">
-                        <img src="images/download.jpg" />
-                    </div>
-                    <!-- End .project-image -->
-                    <div class="project-info">
-                        <h3>Activity predictor</h3>
-                        <p>
-                            Multi-Classifier to predict different activity from the input signal. The model uses DNN algorithm and is trained with the help of daily sports and activity dataset. 
-                            These models can be used in healthcare to auto-track the movements of humans.
-                        </p>
-                        <a href="https://github.com/tunesh/Multi-Classifier-to-predict-activity">View Project</a>
-                    </div>
-                    <!-- End .project-info -->
-                </div>
-
-                <div class="project shadow-large">
-                    <div class="project-image">
-                        <img src="images/pasted-image-02.png" />
-                    </div>
-                    <!-- End .project-image -->
-                    <div class="project-info">
-                        <h3>Classifying different data of fields from bill.</h3>
-                        <p>
-                            Machine Learning model to capture the data of fields, Invoice Date, Invoice Number, Buyer GST Number, Seller GST Number, and Total Amount from the image data of bills.
-                            Automating these systems eliminate the huge amount of manual work.
-                        </p>
-                        <a href="https://github.com/tunesh/Classifying-different-data-of-fields-from-bill">View Project</a>
-                    </div>
-                    <!-- End .project-info -->
-                </div>
-                <!-- End .project -->
-                
-                <div class="project shadow-large">
-                    <div class="project-image">
-                        <img src="images/download (1).jpg" />
-                    </div>
-                    <!-- End .project-image -->
-                    <div class="project-info">
-                        <h3>Energy usage predictor</h3>
-                        <p>
-                            A significant cause of power outages is overloading. This can be avoided if we know when excess electricity is going to be used. This predictor predicts the usage of energy that saves a lot of energy and money.
-                        </p>
-                        
-                    </div>
-                    <!-- End .project-info -->
-                </div>
-
-            </div>
-        </div>
-    </div>
-    <!-- End #projects -->
-
-    <div id="skills">
-        <h2 class="heading">Skills</h2>
-        <ul>
-            <li>Python</li>
-            <li>Data Science</li>
-            <li>Machine Learning</li>
-            <li>Deep Learning</li>
-            <li>Natural Language Processing</li>
-            <li>Computer Vision</li>
-            <li>Tensorflow</li>
-            <li>Keras</li>
-            <li>Pytorch</li>
-            <li>OpenCV</li>
-            <li>Data visualisation</li>
-            <li>SQL</li>
-            <li>Pandas</li>
-        </ul>
-    </div>
-    <!-- End #skills -->
-
-    <div id="contact">
-        <h2>Get in Touch</h2>
-        <div id="contact-form">
-            <form method="POST" action="//formspree.io/tunesh.verma@gmail.com">
-                <input type="hidden" name="_subject" value="Contact request from personal website" />
-                <input type="email" name="_replyto" placeholder="Your email" required>
-                <textarea name="message" placeholder="Your message" required></textarea>
-                <button type="submit">Send</button>
-            </form>
-        </div>
-        <!-- End #contact-form -->
-    </div>
-    <!-- End #contact -->
-
-    <footer>
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-5 copyright">
-                    <p>
-                        Copyright &copy; 2018 TUNESH VERMA
-                    </p>
-                </div>
-                <div class="col-sm-2 top">
-                    <span id="to-top">
-                        <i class="fa fa-chevron-up" aria-hidden="true"></i>
-                    </span>
-                </div>
-                <div class="col-sm-5 social">
-                    <ul>
-                        <li>
-                            <a href="https://github.com/tunesh" target="_blank"><i class="fa fa-github" aria-hidden="true"></i></a>
-                        </li>
-                        <li>
-                            <a href="https://stackoverflow.com/users/8504335/tunesh-verma" target="_blank"><i class="fa fa-stack-overflow" aria-hidden="true"></i></a>
-                        </li>
-                        <li>
-                            <a href="https://www.linkedin.com/in/tunesh-verma-028008102/" target="_blank"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
-                        </li>
-                        
-                        <li>
-                            <a href="https://twitter.com/TUNESHVERMA" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-                        </li>
-                   <!-- <li>
-                            <a href="https://medium.com/@pradhanaman2595" target="_blank"><i class="fa fa-medium" aria-hidden="true"></i></a>
-                        </li> -->
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </footer>
-    <!-- End footer -->
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="js/scripts.min.js"></script>
+<footer class="container"><span>© <span id="year"></span> Tunesh Verma</span><span>AI systems · from perception to conversation</span></footer>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+  const observer = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add("show"); }), {threshold:.12});
+  document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+</script>
 </body>
-
 </html>
