@@ -1,0 +1,257 @@
+/* Voice agent overlay.
+   Uses the design tokens declared on :root in index.html, with fallbacks so
+   this file still renders correctly if it is ever loaded on its own. */
+
+.va-open {
+  overflow: hidden;
+}
+
+.va-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(7, 9, 13, 0.82);
+  backdrop-filter: blur(18px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.32s ease;
+}
+
+.va-overlay[data-open="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.va-panel {
+  position: relative;
+  width: min(480px, 100%);
+  padding: 30px 28px 26px;
+  text-align: center;
+  border: 1px solid var(--line, #202733);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(124, 140, 255, 0.12), transparent 60%),
+    var(--surface, #0d1118);
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.6);
+  transform: translateY(12px) scale(0.98);
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.va-overlay[data-open="true"] .va-panel {
+  transform: none;
+}
+
+.va-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line, #202733);
+  border-radius: 50%;
+  background: var(--surface2, #111722);
+  color: var(--muted, #929cab);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.va-close:hover {
+  color: var(--text, #eef2f7);
+}
+
+.va-eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent2, #42e8c3);
+}
+
+.va-sub {
+  margin: 7px 0 0;
+  font-size: 13px;
+  color: var(--muted, #929cab);
+}
+
+.va-stage {
+  display: grid;
+  place-items: center;
+  margin: 18px 0 6px;
+}
+
+.va-canvas {
+  width: 260px;
+  height: 260px;
+  max-width: 68vw;
+  max-height: 68vw;
+}
+
+/* Status reads as a state label, so it stays on one line and never reflows
+   the panel as it changes between "Listening" and "Speaking". */
+.va-status {
+  min-height: 22px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text, #eef2f7);
+}
+
+.va-caption {
+  min-height: 42px;
+  margin: 8px auto 0;
+  max-width: 34ch;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted, #929cab);
+}
+
+/* Space for captions is only worth reserving during a call, where text is
+   about to arrive. Holding it open before then leaves a hole in the panel. */
+.va-overlay:not([data-phase="live"]) .va-caption:empty {
+  min-height: 0;
+  margin: 0;
+}
+
+.va-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.va-btn {
+  padding: 12px 18px;
+  border: 1px solid var(--line, #202733);
+  border-radius: 12px;
+  background: var(--surface2, #111722);
+  color: var(--text, #eef2f7);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.va-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: #303949;
+}
+
+.va-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Muted is a state the caller needs to read at a glance, not a pressed
+   button, so it gets its own colour rather than a subtle outline change. */
+.va-btn[aria-pressed="true"] {
+  border-color: var(--accent2, #42e8c3);
+  color: var(--accent2, #42e8c3);
+}
+
+.va-btn.va-end {
+  border-color: rgba(255, 106, 106, 0.4);
+  color: #ff8b8b;
+}
+
+.va-btn.va-end:hover:not(:disabled) {
+  border-color: rgba(255, 106, 106, 0.75);
+}
+
+/* Mute and End call only mean something during a call. Once it has failed or
+   finished, the one useful action is starting over. */
+.va-retry {
+  display: none;
+}
+
+.va-overlay[data-phase="error"] .va-mute,
+.va-overlay[data-phase="error"] .va-end,
+.va-overlay[data-phase="ended"] .va-mute,
+.va-overlay[data-phase="ended"] .va-end {
+  display: none;
+}
+
+.va-overlay[data-phase="error"] .va-retry,
+.va-overlay[data-phase="ended"] .va-retry {
+  display: inline-block;
+  border-color: rgba(124, 140, 255, 0.45);
+  color: var(--accent, #7c8cff);
+}
+
+.va-error {
+  margin: 14px auto 0;
+  max-width: 36ch;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #ff8b8b;
+}
+
+.va-error:empty {
+  margin: 0;
+}
+
+/* The hero orb is the same object the caller talks to, so it advertises
+   itself as clickable rather than sitting there as decoration. */
+.orb.va-trigger {
+  cursor: pointer;
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+
+.orb.va-trigger:hover {
+  border-color: rgba(124, 140, 255, 0.45);
+  transform: translateY(-3px);
+}
+
+.orb-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border: 1px solid var(--line, #202733);
+  border-radius: 999px;
+  background: rgba(13, 17, 24, 0.9);
+  color: var(--muted, #929cab);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.orb.va-trigger:hover .orb-hint {
+  color: var(--text, #eef2f7);
+  border-color: #303949;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent, #7c8cff);
+  outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .va-panel {
+    padding: 26px 18px 22px;
+  }
+
+  .va-controls {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .va-overlay,
+  .va-panel,
+  .va-btn,
+  .orb.va-trigger {
+    transition: none;
+  }
+
+  .va-panel {
+    transform: none;
+  }
+}
