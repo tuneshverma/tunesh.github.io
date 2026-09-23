@@ -118,7 +118,7 @@
 
 <section id="contact"><div class="container contact reveal">
   <div><div class="kicker">05 / Contact</div><h2>Let's build something intelligent.</h2><p>Based in Bangalore, India · AI/ML · Generative AI · Agentic Systems</p></div>
-  <div class="actions"><a class="btn primary" href="mailto:tunesh.verma@gmail.com">tunesh.verma@gmail.com</a><a class="btn" href="resume/Resume.pdf">Download résumé</a><a class="btn" href="https://github.com/tuneshverma" target="_blank" rel="noopener">GitHub</a><a class="btn" href="https://www.linkedin.com/in/tunesh-verma-028008102/" target="_blank" rel="noopener">LinkedIn</a></div>
+  <div class="actions"><button class="btn primary copy-email" type="button" data-email="tunesh.verma@gmail.com" aria-label="Copy email address">tunesh.verma@gmail.com</button><a class="btn" href="resume/Resume.pdf" target="_blank" rel="noopener">View / Download résumé ↗</a><a class="btn" href="https://github.com/tuneshverma" target="_blank" rel="noopener">GitHub</a><a class="btn" href="https://www.linkedin.com/in/tunesh-verma-028008102/" target="_blank" rel="noopener">LinkedIn</a></div>
 </div></section>
 </main>
 
@@ -127,6 +127,29 @@
   document.getElementById("year").textContent = new Date().getFullYear();
   const observer = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add("show"); }), {threshold:.12});
   document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+
+  document.querySelectorAll(".copy-email").forEach(button => {
+    button.addEventListener("click", async () => {
+      const email = button.dataset.email;
+      const original = button.textContent;
+      try {
+        await navigator.clipboard.writeText(email);
+        button.textContent = "Email copied ✓";
+      } catch (err) {
+        const input = document.createElement("input");
+        input.value = email;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+        button.textContent = "Email copied ✓";
+      }
+      setTimeout(() => { button.textContent = original; }, 1800);
+    });
+  });
 </script>
 </body>
 </html>
