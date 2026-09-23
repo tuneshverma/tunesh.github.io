@@ -139,56 +139,100 @@
     );
   }
 
-  function drawRing(cx, cy, rx, ry, tilt, color, alpha) {
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, rx, ry, tilt, 0, TAU);
-    ctx.strokeStyle = rgba(color, alpha);
-    ctx.lineWidth = 1;
-    ctx.stroke();
+  /* The entity: three overlapping blobs whose outlines are modulated by three
+     sine waves at different frequencies. The frequencies are not multiples of
+     one another, so the silhouette never repeats.
+
+     The same renderer paints the launcher and the call panel. In the launcher
+     it is clipped to a circle — a contained thing, pressing against the glass.
+     In the call it runs unclipped, the same creature let out into the room. */
+
+  var BLOBS = [
+    { seed: 0.0, amp: 0.13, scale: 0.94, alpha: 0.95, drift: 1.0, tint: 0.0 },
+    { seed: 2.1, amp: 0.17, scale: 0.82, alpha: 0.6, drift: -0.72, tint: 0.55 },
+    { seed: 4.3, amp: 0.2, scale: 0.66, alpha: 0.5, drift: 1.45, tint: 1.0 },
+  ];
+
+  function blobPath(c, cx, cy, radius, t, blob, amp) {
+    var points = 84;
+    c.beginPath();
+    for (var i = 0; i <= points; i++) {
+      var a = (i / points) * TAU;
+      var wave =
+        Math.sin(a * 3 + t * 1.1 * blob.drift + blob.seed) * 0.5 +
+        Math.sin(a * 5 - t * 0.83 * blob.drift + blob.seed * 1.7) * 0.32 +
+        Math.sin(a * 2 + t * 0.61 * blob.drift + blob.seed * 2.3) * 0.18;
+      var r = radius * (1 + amp * wave);
+      var x = cx + Math.cos(a) * r;
+      var y = cy + Math.sin(a) * r;
+      if (i === 0) c.moveTo(x, y);
+      else c.lineTo(x, y);
+    }
+    c.closePath();
   }
 
-  function drawCore(cx, cy, radius, color, level, data) {
-    var points = 80;
-    var still = reduceMotion.matches;
-    var wobble = still ? 0 : 0.17 * level;
+  function drawEntity(c, size, opts) {
+    var t = reduceMotion.matches ? 3.4 : opts.t;
+    var energy = opts.energy || 0;
+    var glow = opts.glow || 0;
+    var cx = size / 2;
+    var cy = size / 2;
+    var base = size * opts.radius * (1 + energy * 0.26 + glow * 0.05);
 
-    ctx.beginPath();
-    for (var i = 0; i <= points; i++) {
-      var angle = (i / points) * TAU;
-      var bin = 0;
-      if (data && data.length && !still) {
-        bin = data[Math.floor((i / points) * data.length * 0.45)] / 255;
-      }
-      var r = radius * (1 + bin * wobble);
-      var x = cx + Math.cos(angle) * r;
-      var y = cy + Math.sin(angle) * r;
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
+    c.clearRect(0, 0, size, size);
+
+    if (opts.clip) {
+      // Backing disc, so the circle never reads as a flat swatch.
+      var bg = c.createRadialGradient(cx, cy, 0, cx, cy, size * 0.5);
+      bg.addColorStop(0, "rgba(19,25,38,1)");
+      bg.addColorStop(1, "rgba(9,12,18,1)");
+      c.fillStyle = bg;
+      c.beginPath();
+      c.arc(cx, cy, size * 0.5, 0, TAU);
+      c.fill();
+      c.save();
+      c.clip();
+    } else {
+      c.save();
     }
-    ctx.closePath();
 
-    // Highlight sits up and to the left of centre so the core reads as a lit
-    // sphere. A centred gradient flattens it into a patch of fog.
-    var gradient = ctx.createRadialGradient(
-      cx - radius * 0.3,
-      cy - radius * 0.34,
-      radius * 0.04,
-      cx,
-      cy,
-      radius * 1.04,
-    );
-    gradient.addColorStop(0, rgba(lift(color, 0.5), 1));
-    gradient.addColorStop(0.4, rgba(color, 0.82));
-    gradient.addColorStop(0.82, rgba(color, 0.34));
-    gradient.addColorStop(1, rgba(color, 0.1));
-    ctx.fillStyle = gradient;
-    ctx.fill();
+    var halo = c.createRadialGradient(cx, cy, base * 0.2, cx, cy, size * 0.54);
+    halo.addColorStop(0, rgba(opts.colorA, 0.2 + energy * 0.22 + glow * 0.12));
+    halo.addColorStop(1, "rgba(0,0,0,0)");
+    c.fillStyle = halo;
+    c.fillRect(0, 0, size, size);
 
-    // A hairline rim gives the sphere an edge, echoing the 1px borders the
-    // rest of the site uses.
-    ctx.strokeStyle = rgba(lift(color, 0.25), 0.5);
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    // Additive blending: where the blobs overlap the colour builds, which is
+    // what gives the liquid look rather than three flat shapes stacked up.
+    c.globalCompositeOperation = "lighter";
+    for (var i = 0; i < BLOBS.length; i++) {
+      var b = BLOBS[i];
+      var color = lift(mix(opts.colorA, opts.colorB, b.tint), glow * 0.2);
+      var ox = Math.cos(t * 0.37 * b.drift + b.seed) * size * 0.035;
+      var oy = Math.sin(t * 0.29 * b.drift + b.seed * 1.4) * size * 0.035;
+      var r = base * b.scale;
+      blobPath(c, cx + ox, cy + oy, r, t, b, b.amp * (1 + energy * 1.3));
+
+      var g = c.createRadialGradient(
+        cx + ox - r * 0.32, cy + oy - r * 0.36, r * 0.05,
+        cx + ox, cy + oy, r * 1.25,
+      );
+      g.addColorStop(0, rgba(lift(color, 0.45), b.alpha));
+      g.addColorStop(0.55, rgba(color, b.alpha * 0.55));
+      g.addColorStop(1, rgba(color, 0));
+      c.fillStyle = g;
+      c.fill();
+    }
+    c.globalCompositeOperation = "source-over";
+    c.restore();
+
+    if (opts.clip) {
+      c.beginPath();
+      c.arc(cx, cy, size * 0.5 - 0.5, 0, TAU);
+      c.strokeStyle = rgba(mix(opts.colorA, opts.colorB, 0.5), 0.3 + glow * 0.35);
+      c.lineWidth = 1;
+      c.stroke();
+    }
   }
 
   function frame(now) {
@@ -197,8 +241,6 @@
       rafId = requestAnimationFrame(frame);
       return;
     }
-
-    ctx.clearRect(0, 0, size, size);
 
     var agent = sample(agentAnalyser);
     var mic = state.muted ? null : sample(micAnalyser);
@@ -226,31 +268,16 @@
     var active = source ? source.level : 0;
     state.level += (active - state.level) * 0.22;
 
-    var cx = size / 2;
-    var cy = size / 2;
-    var base = size * 0.19;
-    var radius = base * (1 + state.level * 0.26);
-    var spin = reduceMotion.matches ? 0 : now / 9000;
+    drawEntity(ctx, size, {
+      t: now / 1000,
+      colorA: state.color,
+      colorB: lift(state.color, 0.42),
+      energy: state.level,
+      glow: 0,
+      radius: 0.3,
+      clip: false,
+    });
 
-    ctx.save();
-
-    // Ambient glow, strongest while the agent is talking.
-    var glow = ctx.createRadialGradient(cx, cy, radius * 0.6, cx, cy, size * 0.5);
-    glow.addColorStop(0, rgba(state.color, 0.16 + state.level * 0.2));
-    glow.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, size, size);
-
-    // Rings frame the core rather than competing with it, so they stay just
-    // outside the sphere and fade back as it grows.
-    var ringR = size * 0.36;
-    var ringFade = 1 - state.level * 0.3;
-    drawRing(cx, cy, ringR, ringR * 0.40, RING_A + spin, state.color, 0.3 * ringFade);
-    drawRing(cx, cy, ringR * 0.78, ringR * 0.3, RING_B - spin * 1.4, state.color, 0.2 * ringFade);
-
-    drawCore(cx, cy, radius, state.color, state.level, source ? source.data : null);
-
-    ctx.restore();
     rafId = requestAnimationFrame(frame);
   }
 
@@ -577,7 +604,12 @@
     setError("");
     captionEl.textContent = "";
     setStatus("Connecting…");
-    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    // Safari and Firefox don't focus a button on click, so lastFocus is often
+    // <body>, which can't take focus. Fall back to the launcher so closing the
+    // panel never strands keyboard focus at the top of the document.
+    var target =
+      lastFocus && lastFocus.focus && lastFocus !== document.body ? lastFocus : fab;
+    if (target && target.focus) target.focus();
   }
 
   muteBtn.addEventListener("click", function () {
@@ -606,6 +638,161 @@
   window.addEventListener("resize", function () {
     if (overlay.dataset.open === "true") sizeCanvas();
   });
+
+  // Built here rather than in index.html so the button only exists when the
+  // script that powers it has actually run. A hardcoded one would sit there
+  // looking clickable even if this file failed to load.
+  var fab = document.createElement("button");
+  fab.className = "va-fab";
+  fab.type = "button";
+  fab.setAttribute("aria-label", "Talk to my AI");
+  fab.innerHTML = [
+    '<span class="va-fab-orb-wrap">',
+    '  <canvas class="va-fab-orb" aria-hidden="true"></canvas>',
+    "</span>",
+    '<span class="va-fab-label">Talk to my AI</span>',
+  ].join("");
+  fab.addEventListener("click", open);
+  document.body.appendChild(fab);
+
+  /* ------------------------------------------------ the living entity
+
+     Three translucent blobs, each an ellipse whose radius is modulated by
+     three sine waves at different frequencies and drift speeds. Because the
+     frequencies are not multiples of one another the silhouette never
+     repeats, which is what stops it reading as a looping animation. */
+
+  var orbWrap = fab.querySelector(".va-fab-orb-wrap");
+  var miniCanvas = fab.querySelector(".va-fab-orb");
+  var miniCtx = miniCanvas.getContext("2d");
+  var miniSize = 0;
+  var miniHover = 0;
+  var miniGlow = 0;
+
+  function sizeMini() {
+    var rect = miniCanvas.getBoundingClientRect();
+    if (!rect.width) return 0;
+    var dpr = window.devicePixelRatio || 1;
+    miniCanvas.width = Math.round(rect.width * dpr);
+    miniCanvas.height = Math.round(rect.height * dpr);
+    miniCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    miniSize = rect.width;
+    return miniSize;
+  }
+
+  function miniFrame(now) {
+    requestAnimationFrame(miniFrame);
+    if (!miniSize && !sizeMini()) return;
+    // Hidden, or behind the call panel: nothing worth painting.
+    if (document.body.classList.contains("va-open")) return;
+    if (fab.classList.contains("va-fab--hidden")) return;
+
+    miniGlow += (miniHover - miniGlow) * 0.12;
+
+    drawEntity(miniCtx, miniSize, {
+      t: now / 1000,
+      colorA: COLORS.listening,
+      colorB: COLORS.speaking,
+      energy: 0,
+      glow: miniGlow,
+      radius: 0.3,
+      clip: true,
+    });
+  }
+
+  ["mouseenter", "focus"].forEach(function (evt) {
+    fab.addEventListener(evt, function () { miniHover = 1; });
+  });
+  ["mouseleave", "blur"].forEach(function (evt) {
+    fab.addEventListener(evt, function () { miniHover = 0; });
+  });
+
+  requestAnimationFrame(miniFrame);
+
+  /* ------------------------------------------------- launcher travel
+
+     hidden   — still above the slot, so no button exists yet
+     anchored — slot is on screen, button sits in it at full size
+     docked    — scrolled past, shrunk into the bottom-right corner */
+
+  var anchor = document.querySelector(".va-anchor");
+  // The corner circle is a fixed size regardless of how big the full-size
+  // button is, so changing the hero size (or the mobile breakpoint) never
+  // changes what the docked launcher looks like.
+  var DOCK_DIAMETER = 58;
+  var travelState = null;
+  var travelTimer = null;
+  var queued = false;
+
+  function placeFab() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var w = fab.offsetWidth;
+    var h = fab.offsetHeight;
+    if (!w || !h || !anchor) return;
+
+    var r = anchor.getBoundingClientRect();
+    var next;
+    if (r.top > vh * 0.94) next = "hidden";
+    else if (r.bottom < vh * 0.18) next = "docked";
+    else next = "anchored";
+
+    var orbW = orbWrap.offsetWidth || 1;
+    var dockScale = DOCK_DIAMETER / orbW;
+    var x;
+    var y;
+
+    if (next === "docked") {
+      // Position the circle, not the whole button: the label is invisible when
+      // docked, and measuring the box would leave its empty space between the
+      // circle and the corner.
+      var m = vw < 560 ? 18 : 24;
+      var ocx = orbWrap.offsetLeft + orbW / 2;
+      var ocy = orbWrap.offsetTop + orbWrap.offsetHeight / 2;
+      // Rendered orb centre = buttonCentre + (orbCentre - buttonCentre) * scale
+      x = vw - m - DOCK_DIAMETER / 2 - w / 2 - (ocx - w / 2) * dockScale;
+      y = vh - m - DOCK_DIAMETER / 2 - h / 2 - (ocy - h / 2) * dockScale;
+    } else {
+      x = r.left + r.width / 2 - w / 2;
+      y = r.top + r.height / 2 - h / 2;
+    }
+
+    if (next !== travelState) {
+      var wasHidden = travelState === null || travelState === "hidden";
+      travelState = next;
+      fab.classList.toggle("va-fab--hidden", next === "hidden");
+      fab.classList.toggle("va-fab--docked", next === "docked");
+      // Don't animate a journey from nowhere — the first appearance should
+      // fade in at full size, not fly in from a stale position.
+      if (!wasHidden) {
+        fab.classList.add("va-fab--moving");
+        clearTimeout(travelTimer);
+        travelTimer = setTimeout(function () {
+          fab.classList.remove("va-fab--moving");
+        }, 800);
+      }
+    }
+
+    fab.style.transform =
+      "translate(" + Math.round(x) + "px," + Math.round(y) + "px) scale(" +
+      (next === "docked" ? dockScale.toFixed(4) : 1) + ")";
+  }
+
+  function scheduleFab() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () {
+      queued = false;
+      placeFab();
+    });
+  }
+
+  window.addEventListener("scroll", scheduleFab, { passive: true });
+  window.addEventListener("resize", scheduleFab);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(scheduleFab);
+  }
+  placeFab();
 
   document.querySelectorAll("[data-va-open]").forEach(function (el) {
     el.addEventListener("click", function (event) {

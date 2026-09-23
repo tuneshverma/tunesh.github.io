@@ -58,18 +58,20 @@
     <h1>I build AI systems that <span class="gradient">think, talk, see, and act.</span></h1>
     <p>7+ years building production AI across generative AI, multi-agent systems, realtime voice, RAG, computer vision, and MLOps.</p>
     <div class="actions">
-      <button class="btn primary" type="button" data-va-open>Talk to my AI</button>
-      <a class="btn" href="#work">Explore my work ↓</a>
+      <a class="btn primary" href="#work">Explore my work ↓</a>
       <a class="btn" href="mailto:tunesh.verma@gmail.com">Email me</a>
     </div>
   </div>
-  <div class="orb reveal va-trigger" role="button" tabindex="0" data-va-open
-       aria-label="Talk to my AI">
+  <div class="orb reveal" aria-label="Abstract AI system visualization">
     <div class="node n1">Realtime Voice</div><div class="node n2">Multi-Agent</div>
     <div class="node n3">RAG + LLMs</div><div class="node n4">Computer Vision</div>
-    <div class="orb-hint">Talk to my AI →</div>
   </div>
 </section>
+
+<!-- Slot the voice agent button occupies at full size. It reserves the space;
+     voice/agent.js positions the real button over it and flies it to the
+     bottom-right corner once you scroll past. -->
+<div class="va-anchor" aria-hidden="true"></div>
 
 <section id="work"><div class="container">
   <div class="section-head reveal"><div><div class="kicker">01 / What I build</div><h2>From models to production systems.</h2></div><p>My work spans the full AI stack—from perception and retrieval to realtime conversational agents, orchestration and production infrastructure.</p></div>

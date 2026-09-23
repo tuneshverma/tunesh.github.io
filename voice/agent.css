@@ -196,36 +196,127 @@
   margin: 0;
 }
 
-/* The hero orb is the same object the caller talks to, so it advertises
-   itself as clickable rather than sitting there as decoration. */
-.orb.va-trigger {
+/* ------------------------------------------------------- floating launcher
+
+   One button in three states. It does not exist while you are still in the
+   hero — appearing full size exactly when you reach its slot is the moment
+   that makes people notice it. Scroll past and it shrinks into the corner;
+   scroll back and it returns. Same element throughout.
+
+   The circle holds a living thing: overlapping blobs whose outlines are
+   modulated by layered sine waves, so the silhouette never repeats. It is the
+   only thing that moves. */
+
+/* The slot the button occupies at full size, reserving layout space so
+   nothing shifts when the button leaves for the corner. */
+.va-anchor {
+  height: 272px;
+  margin: 10px 0 0;
+}
+
+/* Every section carries a 1px border-top as a divider. With the button slot
+   sitting between the hero and Work, that divider lands just under the label
+   and reads as a rule attached to the button. The slot belongs to the hero,
+   so this one divider goes. */
+.va-anchor + section {
+  border-top: 0;
+}
+
+.va-fab {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 0;
+  border: 0;
+  background: none;
   cursor: pointer;
-  transition: border-color 0.25s ease, transform 0.25s ease;
+  transform-origin: 50% 50%;
+  /* Positioned by JS before first paint; keeps it off screen until then. */
+  transform: translate(-9999px, -9999px);
+  transition: opacity 0.4s ease;
 }
 
-.orb.va-trigger:hover {
-  border-color: rgba(124, 140, 255, 0.45);
-  transform: translateY(-3px);
+/* Applied only while travelling. In the anchored state the transform is
+   rewritten every frame to track the slot, and a permanent transition there
+   would make the button lag behind the page. */
+.va-fab--moving {
+  transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
 }
 
-.orb-hint {
-  position: absolute;
-  left: 50%;
-  bottom: 18px;
-  transform: translateX(-50%);
-  padding: 8px 14px;
-  border: 1px solid var(--line, #202733);
-  border-radius: 999px;
-  background: rgba(13, 17, 24, 0.9);
-  color: var(--muted, #929cab);
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
+/* Before you have scrolled down to the slot there is no button at all. */
+.va-fab--hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
-.orb.va-trigger:hover .orb-hint {
+.va-fab-orb-wrap {
+  position: relative;
+  width: 212px;
+  height: 212px;
+  border-radius: 50%;
+  transition: box-shadow 0.4s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 0 0 1px rgba(124, 140, 255, 0.16),
+    0 18px 50px rgba(8, 10, 16, 0.65);
+}
+
+.va-fab:hover .va-fab-orb-wrap,
+.va-fab:focus-visible .va-fab-orb-wrap {
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 1px rgba(124, 140, 255, 0.42),
+    0 26px 64px rgba(8, 10, 16, 0.7);
+}
+
+.va-fab:active .va-fab-orb-wrap {
+  transform: translateY(-1px) scale(0.975);
+}
+
+.va-fab-orb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.va-fab-label {
   color: var(--text, #eef2f7);
-  border-color: #303949;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  transition: opacity 0.4s ease;
+}
+
+/* In the corner the circle speaks for itself; the words would be 7px tall. */
+.va-fab--docked .va-fab-label {
+  opacity: 0;
+}
+
+/* The launcher has nothing to launch while the call panel is open. Opacity
+   only — the transform belongs to the travel animation. */
+.va-open .va-fab {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 560px) {
+  .va-anchor {
+    height: 236px;
+  }
+
+  .va-fab-orb-wrap {
+    width: 172px;
+    height: 172px;
+  }
+
+  .va-fab-label {
+    font-size: 14px;
+  }
 }
 
 :focus-visible {
@@ -247,11 +338,18 @@
   .va-overlay,
   .va-panel,
   .va-btn,
-  .orb.va-trigger {
+  .va-fab {
     transition: none;
   }
 
   .va-panel {
     transform: none;
+  }
+
+  /* The sphere in the launcher stops rotating and breathing — the renderer
+     checks the same media query and paints a still frame — so the control is
+     recognisable without any motion at all. */
+  .va-fab-inner {
+    transition: none;
   }
 }
