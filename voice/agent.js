@@ -604,6 +604,13 @@
     setError("");
     captionEl.textContent = "";
     setStatus("Connecting…");
+
+    // Drop the #talk marker once the call is over, so reloading or coming back
+    // through history lands on the page rather than reopening the call.
+    if (window.location.hash.toLowerCase() === "#talk" && window.history.replaceState) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+
     // Safari and Firefox don't focus a button on click, so lastFocus is often
     // <body>, which can't take focus. Fall back to the launcher so closing the
     // panel never strands keyboard focus at the top of the document.
@@ -793,6 +800,24 @@
     document.fonts.ready.then(scheduleFab);
   }
   placeFab();
+
+  /* Deep link: /#talk opens the call straight away, so the agent can be shared
+     as a link rather than "go to my site and scroll down".
+
+     Browsers gate the microphone behind a user gesture, and a page load is not
+     one. Where that bites — Safari, or anyone who has not granted the mic here
+     before — connect() fails with a clear message and the panel offers a
+     button, which is a gesture, so the second attempt works. Chrome and any
+     returning visitor connect immediately. */
+
+  function wantsDeepLink() {
+    if (window.location.hash.toLowerCase() === "#talk") return true;
+    return /(^|[?&])talk(=|&|$)/i.test(window.location.search);
+  }
+
+  if (wantsDeepLink()) {
+    open();
+  }
 
   document.querySelectorAll("[data-va-open]").forEach(function (el) {
     el.addEventListener("click", function (event) {
