@@ -173,15 +173,26 @@
 .va-overlay[data-phase="error"] .va-mute,
 .va-overlay[data-phase="error"] .va-end,
 .va-overlay[data-phase="ended"] .va-mute,
-.va-overlay[data-phase="ended"] .va-end {
+.va-overlay[data-phase="ended"] .va-end,
+.va-overlay[data-phase="ready"] .va-mute,
+.va-overlay[data-phase="ready"] .va-end {
   display: none;
 }
 
 .va-overlay[data-phase="error"] .va-retry,
-.va-overlay[data-phase="ended"] .va-retry {
+.va-overlay[data-phase="ended"] .va-retry,
+.va-overlay[data-phase="ready"] .va-retry {
   display: inline-block;
   border-color: rgba(124, 140, 255, 0.45);
   color: var(--accent, #7c8cff);
+}
+
+/* Arriving from a link, this is the primary action, so it carries weight. */
+.va-overlay[data-phase="ready"] .va-retry {
+  padding: 14px 30px;
+  font-size: 15px;
+  border-color: rgba(124, 140, 255, 0.7);
+  background: rgba(124, 140, 255, 0.12);
 }
 
 .va-error {

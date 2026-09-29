@@ -302,6 +302,7 @@
     // a failure, so the same button invites another question instead.
     if (phase === "ended") retryBtn.textContent = "Ask again";
     else if (phase === "error") retryBtn.textContent = "Try again";
+    else if (phase === "ready") retryBtn.textContent = "Start call";
   }
 
   function setStatus(text) {
@@ -313,6 +314,7 @@
   }
 
   function refreshStatus() {
+    if (state.phase === "ready") return setStatus("Ready when you are");
     if (state.phase === "connecting") return setStatus("Connecting…");
     if (state.phase === "ended") return setStatus("Call ended");
     if (state.phase === "error") return setStatus("Not connected");
@@ -584,14 +586,38 @@
     }
   }
 
-  function open() {
+  /* Opening from a click carries a user gesture, so the call can start at once.
+     Opening from a link does not, and browsers gate the microphone behind one —
+     Safari refuses outright, and audio playback can be blocked elsewhere. So a
+     deep link waits on a single button unless the microphone is already
+     granted for this site, in which case it just connects. */
+
+  function startWhenAllowed() {
+    setPhase("ready");
+    refreshStatus();
+    setError("");
+    if (!navigator.permissions || !navigator.permissions.query) return;
+    navigator.permissions
+      .query({ name: "microphone" })
+      .then(function (status) {
+        // Only if the visitor is still sitting on the ready screen.
+        if (status.state === "granted" && state.phase === "ready") connect();
+      })
+      .catch(function () {
+        // Safari has no "microphone" permission descriptor. Keep the button.
+      });
+  }
+
+  function open(opts) {
     lastFocus = document.activeElement;
     overlay.dataset.open = "true";
     document.body.classList.add("va-open");
     document.addEventListener("keydown", onKeydown);
     startRendering();
     closeBtn.focus();
-    connect();
+    // A click handler passes its event here, which has no `deferred`.
+    if (opts && opts.deferred === true) startWhenAllowed();
+    else connect();
   }
 
   function close() {
@@ -816,7 +842,7 @@
   }
 
   if (wantsDeepLink()) {
-    open();
+    open({ deferred: true });
   }
 
   document.querySelectorAll("[data-va-open]").forEach(function (el) {
