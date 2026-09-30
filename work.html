@@ -32,18 +32,238 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <link rel="stylesheet" href="voice/agent.css" />
 </head>
 <body>
-<nav><div class="container nav"><a class="brand" href="index.html">TV<span>.</span></a><div class="navlinks"><a href="index.html">Home</a><a href="#vision">Vision</a><a href="#freelance">Freelance</a><a href="#mintm">MintM</a><a href="#synergy">Synergy Labs</a><a href="#blood">Early Projects</a></div></div></nav>
+<nav><div class="container nav"><a class="brand" href="index.html">TV<span>.</span></a><div class="navlinks"><a href="index.html">Home</a><a href="#webtiga">Webtiga</a><a href="#vision">Vision</a><a href="#freelance">Freelance</a><a href="#mintm">MintM</a><a href="#synergy">Synergy Labs</a><a href="#blood">Early Projects</a></div></div></nav>
 
 <main>
 <header class="hero container">
 <div class="eyebrow">Selected Work / Detailed Case Studies</div>
 <h1>How I went from <span class="gradient">computer vision</span> to intelligent systems.</h1>
 <p>This page captures the engineering stories behind the résumé: the problem, approach, architecture, experiments, deployment and lessons. More case studies will be added as the career story is documented.</p>
-<div class="actions"><a class="btn primary" href="index.html">← Back to portfolio</a><a class="btn" href="#vision">Jump to case studies ↓</a></div>
+<div class="actions"><a class="btn primary" href="index.html">← Back to portfolio</a><a class="btn" href="#webtiga">Jump to case studies ↓</a></div>
 </header>
 
+<section id="webtiga"><div class="container">
+<div class="section-head"><div><div class="kicker">01 / Webtiga · Oct 2023 — Nov 2024</div><h2>A platform for turning a company's own data into its own model.</h2></div><p>Create Brain took a customer's documents, calls and recordings and produced a fine-tuned model they could deploy. The harder lesson was everything that had to be built <em>around</em> that model before it behaved.</p></div>
+
+<article class="case">
+<div class="case-top"><div><div class="sub">Create Brain · self-service fine-tuning platform</div><h3>From raw customer data to a deployed model</h3></div><div class="meta">SageMaker · Airflow · Mistral · Llama 3</div></div>
+
+<p>Organisations have domain knowledge sitting in PDFs, call recordings and video, and no route from that to a model of their own. Create Brain was the route: a drag-and-drop pipeline where a customer configured the stages and the platform handled ingestion, dataset creation, training and deployment without anyone writing the ML workflow by hand.</p>
+
+<figure>
+<svg viewBox="0 0 900 310" role="img" aria-label="Customer data becomes a deployed model, and a second loop generates test cases with an LLM, calls the deployed API, analyses the responses and feeds the results back into prompts, training data and configuration">
+<defs>
+<marker id="cbA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
+<marker id="cbE" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker>
+</defs>
+<rect class="dg-box" x="0" y="60" width="130" height="64" rx="12"/>
+<text class="dg-t" x="65" y="86" text-anchor="middle">Domain data</text>
+<text class="dg-s" x="65" y="106" text-anchor="middle">PDF · audio · video</text>
+<rect class="dg-box" x="170" y="60" width="140" height="64" rx="12"/>
+<text class="dg-t" x="240" y="86" text-anchor="middle">Text extraction</text>
+<text class="dg-s" x="240" y="106" text-anchor="middle">audio lifted from video</text>
+<rect x="350" y="60" width="170" height="64" rx="12" fill="rgba(124,140,255,.1)" stroke="#7c8cff" stroke-opacity=".55"/>
+<text class="dg-t" x="435" y="86" text-anchor="middle">Q&amp;A generation</text>
+<text class="dg-s" x="435" y="106" text-anchor="middle">an LLM writes the dataset</text>
+<text x="435" y="42" text-anchor="middle" fill="#7c8cff" font-size="11.5" font-weight="700">the training set is generated, not supplied</text>
+<rect class="dg-box" x="560" y="60" width="170" height="64" rx="12"/>
+<text class="dg-t" x="645" y="86" text-anchor="middle">SageMaker</text>
+<text class="dg-s" x="645" y="106" text-anchor="middle">train · register · deploy</text>
+<rect class="dg-box" x="770" y="60" width="130" height="64" rx="12"/>
+<text class="dg-t" x="835" y="86" text-anchor="middle">Deployed</text>
+<text class="dg-t" x="835" y="106" text-anchor="middle">brain</text>
+<line class="dg-e" x1="130" y1="92" x2="164" y2="92" marker-end="url(#cbA)"/>
+<line class="dg-e" x1="310" y1="92" x2="344" y2="92" marker-end="url(#cbA)"/>
+<line class="dg-e" x1="520" y1="92" x2="554" y2="92" marker-end="url(#cbA)"/>
+<line class="dg-e" x1="730" y1="92" x2="764" y2="92" marker-end="url(#cbA)"/>
+<path d="M835,124 L868,124 L868,215 L830,215" fill="none" stroke="#42e8c3" stroke-opacity=".65" marker-end="url(#cbE)"/>
+<rect x="640" y="186" width="180" height="58" rx="12" fill="rgba(66,232,195,.07)" stroke="#42e8c3" stroke-opacity=".4"/>
+<text class="dg-t" x="730" y="210" text-anchor="middle">Generate test cases</text>
+<text class="dg-s" x="730" y="229" text-anchor="middle">another LLM writes them</text>
+<path d="M640,215 L610,215" fill="none" stroke="#42e8c3" stroke-opacity=".65" marker-end="url(#cbE)"/>
+<rect x="420" y="186" width="180" height="58" rx="12" fill="rgba(66,232,195,.07)" stroke="#42e8c3" stroke-opacity=".4"/>
+<text class="dg-t" x="510" y="210" text-anchor="middle">Call the live API</text>
+<text class="dg-s" x="510" y="229" text-anchor="middle">every case, automatically</text>
+<path d="M420,215 L390,215" fill="none" stroke="#42e8c3" stroke-opacity=".65" marker-end="url(#cbE)"/>
+<rect x="200" y="186" width="180" height="58" rx="12" fill="rgba(66,232,195,.07)" stroke="#42e8c3" stroke-opacity=".4"/>
+<text class="dg-t" x="290" y="210" text-anchor="middle">Analyse responses</text>
+<text class="dg-s" x="290" y="229" text-anchor="middle">hallucination · drift</text>
+<path d="M200,215 L150,215 L150,272 L40,272 L40,130" fill="none" stroke="#42e8c3" stroke-opacity=".65" marker-end="url(#cbE)"/>
+<text x="520" y="292" text-anchor="middle" fill="#42e8c3" font-size="11.5" font-weight="700">results feed back into prompts, training data and model configuration</text>
+</svg>
+<figcaption>Two things make this a platform rather than a training script. An LLM writes the question-and-answer pairs, because customers have material and not datasets. And the pipeline does not end at a deployed endpoint — a second LLM generates test cases, fires them at the live API, and the collected responses are analysed for exactly the failures these small models were prone to. Fine-tuning never guaranteed good behaviour, so the loop back into prompts, data and configuration is where reliability was actually won.</figcaption>
+</figure>
+
+<p>Fine-tuning was the easy half. The models we could actually use — Mistral and Meta Llama 3 — were small open-weight models, and they were not reliable out of the box.</p>
+
+<div class="cols">
+<div class="block"><h4>What went wrong</h4><ul><li><strong>Hallucination</strong> — answers that weren't grounded in the customer's material, which is the one failure a domain model cannot have.</li><li><strong>Weak instruction following</strong> — conversational constraints were applied inconsistently.</li><li><strong>Thin conversational memory</strong> — little useful context held across a longer conversation.</li></ul></div>
+<div class="block"><h4>What we built around it</h4><ul><li>Substantial prompt, instruction and guardrail engineering per application.</li><li>Memory handled outside the model: a call <em>before</em> the LLM call retrieved and prepared the relevant history.</li><li>Context assembly, conversational control and orchestration at the application layer rather than trusting the model's own context handling.</li></ul></div>
+</div>
+
+<figure>
+<svg viewBox="0 0 900 200" role="img" aria-label="A user turn passes through history retrieval and context assembly before reaching the fine-tuned model, with those two stages marked as the engineering added around the model">
+<defs><marker id="cbB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<rect class="dg-box" x="0" y="60" width="110" height="64" rx="12"/>
+<text class="dg-t" x="55" y="97" text-anchor="middle">User turn</text>
+<rect class="dg-box" x="150" y="60" width="180" height="64" rx="12"/>
+<text class="dg-t" x="240" y="86" text-anchor="middle">Retrieve history</text>
+<text class="dg-s" x="240" y="106" text-anchor="middle">a call before the LLM call</text>
+<rect class="dg-box" x="370" y="60" width="190" height="64" rx="12"/>
+<text class="dg-t" x="465" y="86" text-anchor="middle">Assemble context</text>
+<text class="dg-s" x="465" y="106" text-anchor="middle">prompt + guardrails</text>
+<rect class="dg-box" x="600" y="60" width="180" height="64" rx="12"/>
+<text class="dg-t" x="690" y="86" text-anchor="middle">Fine-tuned model</text>
+<text class="dg-s" x="690" y="106" text-anchor="middle">Mistral / Llama 3</text>
+<rect class="dg-box" x="820" y="60" width="80" height="64" rx="12"/>
+<text class="dg-t" x="860" y="97" text-anchor="middle">Reply</text>
+<line class="dg-e" x1="110" y1="92" x2="144" y2="92" marker-end="url(#cbB)"/>
+<line class="dg-e" x1="330" y1="92" x2="364" y2="92" marker-end="url(#cbB)"/>
+<line class="dg-e" x1="560" y1="92" x2="594" y2="92" marker-end="url(#cbB)"/>
+<line class="dg-e" x1="780" y1="92" x2="814" y2="92" marker-end="url(#cbB)"/>
+<path d="M150,136 L150,146 L560,146 L560,136" fill="none" stroke="#42e8c3" stroke-opacity=".55"/>
+<text x="355" y="168" text-anchor="middle" fill="#42e8c3" font-size="11.5" font-weight="700">added around the model, not inside it</text>
+<text class="dg-s" x="355" y="186" text-anchor="middle">this is where the reliability came from</text>
+</svg>
+<figcaption>The fine-tuned model is one call in the middle of an application, not the application. Because these models held little useful context on their own, history was retrieved and prepared before every request — so the work that made conversations dependable sat in the two stages preceding the model.</figcaption>
+</figure>
+</article>
+
+<article class="case">
+<div class="case-top"><div><div class="sub">MaiSupport · client POC</div><h3>Recovery stories, turned into a system that can use them</h3></div><div class="meta">Whisper-style STT · PII removal · Mistral · Qdrant · RAG</div></div>
+
+<p>A client working in gambling-addiction recovery ran a structured programme: defined steps, specific conversations that had to happen at each one, and progress recorded in their CRM. They also had thousands of recordings of people describing how they had come through addiction themselves. The task was a conversational system that could hold a genuinely domain-specific conversation while moving someone through that programme.</p>
+
+<p>The recordings were the asset and the problem at once. They are real people talking about the worst period of their lives, so nothing could be trained on until the identities were gone.</p>
+
+<figure>
+<svg viewBox="0 0 900 240" role="img" aria-label="Session recordings are transcribed, cleaned and stripped of identifying information before question and answer pairs are generated, which then feed both the fine-tuned model and the retrieval index">
+<defs><marker id="miA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<text x="655" y="40" text-anchor="middle" fill="#7c8cff" font-size="11.5" font-weight="700">before anything is trained on it</text>
+<rect class="dg-box" x="0" y="60" width="150" height="64" rx="12"/>
+<text class="dg-t" x="75" y="86" text-anchor="middle">Recordings</text>
+<text class="dg-s" x="75" y="106" text-anchor="middle">thousands of sessions</text>
+<rect class="dg-box" x="190" y="60" width="140" height="64" rx="12"/>
+<text class="dg-t" x="260" y="96" text-anchor="middle">Speech to text</text>
+<rect class="dg-box" x="370" y="60" width="160" height="64" rx="12"/>
+<text class="dg-t" x="450" y="86" text-anchor="middle">Clean transcripts</text>
+<text class="dg-s" x="450" y="106" text-anchor="middle">quality pass</text>
+<rect x="570" y="60" width="170" height="64" rx="12" fill="rgba(124,140,255,.1)" stroke="#7c8cff" stroke-opacity=".55"/>
+<text class="dg-t" x="655" y="86" text-anchor="middle">Remove identities</text>
+<text class="dg-s" x="655" y="106" text-anchor="middle">named entities transformed</text>
+<rect class="dg-box" x="780" y="60" width="120" height="64" rx="12"/>
+<text class="dg-t" x="840" y="96" text-anchor="middle">Q&amp;A pairs</text>
+<line class="dg-e" x1="150" y1="92" x2="184" y2="92" marker-end="url(#miA)"/>
+<line class="dg-e" x1="330" y1="92" x2="364" y2="92" marker-end="url(#miA)"/>
+<line class="dg-e" x1="530" y1="92" x2="564" y2="92" marker-end="url(#miA)"/>
+<line class="dg-e" x1="740" y1="92" x2="774" y2="92" marker-end="url(#miA)"/>
+<path class="dg-e" d="M840,124 L840,142 L340,142"/>
+<line class="dg-e" x1="340" y1="142" x2="340" y2="154" marker-end="url(#miA)"/>
+<line class="dg-e" x1="610" y1="142" x2="610" y2="154" marker-end="url(#miA)"/>
+<rect class="dg-box" x="250" y="160" width="180" height="58" rx="12"/>
+<text class="dg-t" x="340" y="184" text-anchor="middle">Fine-tune Mistral</text>
+<text class="dg-s" x="340" y="203" text-anchor="middle">how it should talk</text>
+<rect class="dg-box" x="520" y="160" width="180" height="58" rx="12"/>
+<text class="dg-t" x="610" y="184" text-anchor="middle">Qdrant index</text>
+<text class="dg-s" x="610" y="203" text-anchor="middle">what it can look up</text>
+</svg>
+<figcaption>The same prepared material went two ways. Identifying details are transformed out of the transcripts before either path begins, so the model learns from real recovery experience without the people in it being recoverable from the result.</figcaption>
+</figure>
+
+<p>At conversation time the system draws on both of those, which is the part worth being precise about — it was never expected to rely on what the model had memorised.</p>
+
+<figure>
+<svg viewBox="0 0 900 260" role="img" aria-label="A user message triggers retrieval from Qdrant, and the fine-tuned Mistral model answers using both the retrieved stories and what fine-tuning taught it">
+<defs><marker id="miB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
+<marker id="miC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7c8cff"/></marker>
+<marker id="miD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker></defs>
+<rect x="200" y="26" width="200" height="48" rx="12" fill="rgba(124,140,255,.08)" stroke="#7c8cff" stroke-opacity=".45"/>
+<text class="dg-s" x="300" y="55" text-anchor="middle">indexed recovery stories</text>
+<path d="M300,74 L300,104" fill="none" stroke="#7c8cff" stroke-opacity=".6" marker-end="url(#miC)"/>
+<text x="412" y="60" fill="#7c8cff" font-size="11.5" font-weight="700">looked up per message</text>
+<rect class="dg-box" x="0" y="110" width="140" height="64" rx="12"/>
+<text class="dg-t" x="70" y="147" text-anchor="middle">User message</text>
+<rect class="dg-box" x="200" y="110" width="200" height="64" rx="12"/>
+<text class="dg-t" x="300" y="136" text-anchor="middle">Retrieve from Qdrant</text>
+<text class="dg-s" x="300" y="156" text-anchor="middle">stories matching the situation</text>
+<rect class="dg-box" x="460" y="110" width="200" height="64" rx="12"/>
+<text class="dg-t" x="560" y="136" text-anchor="middle">Fine-tuned Mistral</text>
+<text class="dg-s" x="560" y="156" text-anchor="middle">with the retrieved context</text>
+<rect class="dg-box" x="720" y="110" width="180" height="64" rx="12"/>
+<text class="dg-t" x="810" y="147" text-anchor="middle">Response</text>
+<line class="dg-e" x1="140" y1="142" x2="194" y2="142" marker-end="url(#miB)"/>
+<line class="dg-e" x1="400" y1="142" x2="454" y2="142" marker-end="url(#miB)"/>
+<line class="dg-e" x1="660" y1="142" x2="714" y2="142" marker-end="url(#miB)"/>
+<path d="M560,232 L560,180" fill="none" stroke="#42e8c3" stroke-opacity=".6" marker-end="url(#miD)"/>
+<rect x="460" y="234" width="200" height="22" rx="8" fill="rgba(66,232,195,.08)" stroke="#42e8c3" stroke-opacity=".45"/>
+<text class="dg-s" x="560" y="250" text-anchor="middle">fine-tuning on the same material</text>
+<text x="672" y="212" fill="#42e8c3" font-size="11.5" font-weight="700">baked into the weights</text>
+</svg>
+<figcaption>Two sources of the same domain knowledge, doing different jobs. Fine-tuning shaped how the system talks about recovery; retrieval supplied the specific experience relevant to what someone had just said — so when a user described a problem, the answer could draw on how a real person had handled that situation, rather than on whatever the model happened to remember.</figcaption>
+</figure>
+
+<p>All of that ran inside the client's programme rather than as an open chat, so the conversation had to know which step the person was on and steer toward it.</p>
+
+<div class="cols">
+<div class="block"><h4>What I worked on</h4><ul><li>Transcribing thousands of session recordings, and the cleaning pass over the raw transcripts.</li><li>Generating the question-and-answer data from the processed transcripts.</li><li>Fine-tuning Mistral on the prepared dataset.</li><li>Qdrant ingestion and the retrieval side of the RAG pipeline.</li><li>Prompt engineering for conversational behaviour and instruction adherence.</li><li>Testing the system and working on hallucination and instruction-following failures.</li></ul></div>
+<div class="block"><h4>What the system also involved</h4><p>The identity-removal pipeline and the CRM integration were part of the wider build rather than my own work. They are described here because the project does not make sense without them — thousands of recordings of real people cannot be used at all without the first, and the programme has nowhere to record progress without the second.</p></div>
+</div>
+</article>
+
+<article class="case">
+<div class="case-top"><div><div class="sub">TATA AIA · supporting project</div><h3>Insurance retrieval</h3></div><div class="meta">RAG</div></div>
+<p>A retrieval-based conversational system over client-provided insurance material, pulling the relevant information from the domain knowledge base and passing it to the model as context at answer time.</p>
+<div class="note">My involvement here was limited next to Create Brain and MaiSupport, so this stays short rather than being written up as a major personal project.</div>
+</article>
+
+<article class="case">
+<div class="case-top"><div><div class="sub">Optimis · supporting project</div><h3>Medical codes from a consultation</h3></div><div class="meta">Speech to text · RAG</div></div>
+<p>A healthcare application for doctors. The audio of a patient consultation was transcribed, and that conversation became the input to a retrieval pipeline which fetched the relevant medical code from the domain knowledge base — so the coding work that normally follows a consultation had a starting point.</p>
+<div class="note">I worked around the AI side — the audio-to-text and retrieval pipeline — rather than the healthcare product as a whole, so this is kept brief for the same reason.</div>
+</article>
+
+<article class="case">
+<div class="case-top"><div><div class="sub">Create Agent · the orchestration layer</div><h3>Where my work ended</h3></div><div class="meta">RAG · Tools · Conditional routing · Loops</div></div>
+
+<p>Create Agent was the other half of the platform: a visual system for assembling AI applications by dragging, connecting and configuring components — RAG for domain knowledge, conditional routing to direct execution on a condition or a model's output, tools for reaching external services, loops for repeated execution, and LLM components for the reasoning itself. Underneath the canvas it was considerably more complex than it looked, because something had to manage execution across all those connected pieces.</p>
+
+<figure>
+<svg viewBox="0 0 900 220" role="img" aria-label="Create Brain produces a custom model which becomes one component inside Create Agent; the diagram marks Create Brain as the speaker's work and Create Agent as a system they worked alongside">
+<defs><marker id="caA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<rect x="0" y="46" width="380" height="118" rx="16" fill="rgba(66,232,195,.05)" stroke="#42e8c3" stroke-opacity=".45"/>
+<text x="20" y="74" fill="#42e8c3" font-size="13" font-weight="800">Create Brain</text>
+<rect class="dg-box" x="20" y="92" width="100" height="48" rx="10"/>
+<text class="dg-s" x="70" y="121" text-anchor="middle">domain data</text>
+<rect class="dg-box" x="140" y="92" width="100" height="48" rx="10"/>
+<text class="dg-s" x="190" y="121" text-anchor="middle">fine-tune</text>
+<rect class="dg-box" x="260" y="92" width="100" height="48" rx="10"/>
+<text class="dg-s" x="310" y="121" text-anchor="middle">custom model</text>
+<line class="dg-e" x1="120" y1="116" x2="134" y2="116" marker-end="url(#caA)"/>
+<line class="dg-e" x1="240" y1="116" x2="254" y2="116" marker-end="url(#caA)"/>
+<line class="dg-e" x1="380" y1="105" x2="474" y2="105" marker-end="url(#caA)"/>
+<text class="dg-s" x="427" y="96" text-anchor="middle">as one component</text>
+<rect x="480" y="46" width="420" height="118" rx="16" fill="none" stroke="rgba(255,255,255,.2)" stroke-dasharray="6 5"/>
+<text class="dg-s" x="500" y="74">Create Agent</text>
+<rect class="dg-box" x="500" y="92" width="88" height="48" rx="10"/>
+<text class="dg-s" x="544" y="121" text-anchor="middle">RAG</text>
+<rect class="dg-box" x="600" y="92" width="88" height="48" rx="10"/>
+<text class="dg-s" x="644" y="121" text-anchor="middle">tools</text>
+<rect class="dg-box" x="700" y="92" width="88" height="48" rx="10"/>
+<text class="dg-s" x="744" y="121" text-anchor="middle">logic</text>
+<rect class="dg-box" x="800" y="92" width="88" height="48" rx="10"/>
+<text class="dg-s" x="844" y="121" text-anchor="middle">loops</text>
+<text x="190" y="192" text-anchor="middle" fill="#42e8c3" font-size="12" font-weight="800">what I built</text>
+<text class="dg-s" x="690" y="192" text-anchor="middle">worked alongside it — not my architecture</text>
+</svg>
+<figcaption>Create Brain produced the model; Create Agent was the layer that used it. My work at Webtiga sat on the model side — ingestion, dataset generation, fine-tuning, deployment and the application engineering around the model. Create Agent is shown here because it is what consumed that output, not because I designed it.</figcaption>
+</figure>
+
+<div class="note">I was not the primary architect of Create Agent and don't claim to have been. It is in this write-up because the platform only makes sense as two halves, and knowing where one person's work stops is part of describing a platform honestly.</div>
+</article>
+</div></section>
+
 <section id="vision"><div class="container">
-<div class="section-head"><div><div class="kicker">01 / Vision Group · Jul 2020 — Sep 2023</div><h2>Retail perception, from the cooler to the shelf.</h2></div><p>Three years of production computer vision: a vending cooler that charges with no checkout, shelf intelligence that counts stock it cannot fully see, and two research efforts that pointed at what came next.</p></div>
+<div class="section-head"><div><div class="kicker">02 / Vision Group · Jul 2020 — Sep 2023</div><h2>Retail perception, from the cooler to the shelf.</h2></div><p>Three years of production computer vision: a vending cooler that charges with no checkout, shelf intelligence that counts stock it cannot fully see, and two research efforts that pointed at what came next.</p></div>
 
 <article class="case">
 <div class="case-top"><div><div class="sub">Autonomous Retail · Smart Vending Cooler</div><h3>From detection to a transaction you can trust</h3></div><div class="meta">YOLO · Classification · Centroid tracking · DeepStream · Jetson</div></div>
@@ -275,7 +495,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 </div></section>
 
 <section id="freelance"><div class="container">
-<div class="section-head"><div><div class="kicker">02 / Freelance · Feb — Jun 2020</div><h2>Two contracts, two very different cameras.</h2></div><p>Short engagements between roles: one counting human movement in real time, the other measuring manufactured parts. Both proofs of concept, and both interesting for the architecture rather than the model.</p></div>
+<div class="section-head"><div><div class="kicker">03 / Freelance · Feb — Jun 2020</div><h2>Two contracts, two very different cameras.</h2></div><p>Short engagements between roles: one counting human movement in real time, the other measuring manufactured parts. Both proofs of concept, and both interesting for the architecture rather than the model.</p></div>
 
 <article class="case">
 <div class="case-top"><div><div class="sub">Proof of concept · real-time pose</div><h3>Counting push-ups, and judging them</h3></div><div class="meta">MediaPipe Pose · Joint angles · Parallel regions</div></div>
@@ -378,7 +598,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 </div></section>
 
 <section id="mintm"><div class="container">
-<div class="section-head"><div><div class="kicker">03 / MintM · Mar 2019 — Jan 2020</div><h2>Retail intelligence from CCTV.</h2></div><p>Two different systems: one converted existing CCTV streams into customer-behavior analytics; the other connected computer vision to a physical conveyor system for automated return processing.</p></div>
+<div class="section-head"><div><div class="kicker">04 / MintM · Mar 2019 — Jan 2020</div><h2>Retail intelligence from CCTV.</h2></div><p>Two different systems: one converted existing CCTV streams into customer-behavior analytics; the other connected computer vision to a physical conveyor system for automated return processing.</p></div>
 
 <article class="case">
 <div class="case-top"><div><div class="sub">Retail Footfall & Customer Behavior Analytics</div><h3>Turning CCTV into structured retail data</h3></div><div class="meta">YOLO · Tracking · ResNet · Heatmaps</div></div>
@@ -475,7 +695,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 </div></section>
 
 <section id="synergy"><div class="container">
-<div class="section-head"><div><div class="kicker">04 / Synergy Labs · Jun 2018 — Dec 2018</div><h2>Two separate computer-vision POCs.</h2></div><p>These projects were distinct and should remain separate in the portfolio: one focused on facial recognition and the other on document table understanding.</p></div>
+<div class="section-head"><div><div class="kicker">05 / Synergy Labs · Jun 2018 — Dec 2018</div><h2>Two separate computer-vision POCs.</h2></div><p>These projects were distinct and should remain separate in the portfolio: one focused on facial recognition and the other on document table understanding.</p></div>
 
 <article class="case">
 <div class="case-top"><div><div class="sub">Facial Recognition</div><h3>One-shot learning for office attendance</h3></div><div class="meta">Triplet Loss · Face Recognition · Realtime Camera</div></div>
@@ -498,7 +718,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 </div></section>
 
 <section id="blood"><div class="container">
-<div class="section-head"><div><div class="kicker">05 / Early AI experiments</div><h2>Learning by building.</h2></div><p>Before professional AI work, experimentation with image classification helped establish the foundations for model architecture, evaluation and generalization.</p></div>
+<div class="section-head"><div><div class="kicker">06 / Early AI experiments</div><h2>Learning by building.</h2></div><p>Before professional AI work, experimentation with image classification helped establish the foundations for model architecture, evaluation and generalization.</p></div>
 <article class="case">
 <div class="case-top"><div><div class="sub">Blood Cell Classifier</div><h3>Learning CNNs through image classification</h3></div><div class="meta">Keras · CNN · InceptionV3 · Xception</div></div>
 <p>Built an image-classification pipeline using the Kaggle Blood Cell Images dataset, with four classes: Eosinophil, Lymphocyte, Monocyte and Neutrophil.</p>
