@@ -43,7 +43,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 </header>
 
 <section id="vision"><div class="container">
-<div class="section-head"><div><div class="kicker">01 / Vision Group · Jul 2020 — Sep 2023</div><h2>An autonomous cooler that watches what you take.</h2></div><p>A vending cooler with no checkout. Scan to unlock, take what you want, close the door — the system works out which products actually left and charges for those.</p></div>
+<div class="section-head"><div><div class="kicker">01 / Vision Group · Jul 2020 — Sep 2023</div><h2>Retail perception, from the cooler to the shelf.</h2></div><p>Three years of production computer vision: a vending cooler that charges with no checkout, shelf intelligence that counts stock it cannot fully see, and two research efforts that pointed at what came next.</p></div>
 
 <article class="case">
 <div class="case-top"><div><div class="sub">Autonomous Retail · Smart Vending Cooler</div><h3>From detection to a transaction you can trust</h3></div><div class="meta">YOLO · Classification · Centroid tracking · DeepStream · Jetson</div></div>
@@ -187,6 +187,90 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 </div>
 
 <div class="note">The 98%+ figure is <strong>detection accuracy measured during internal testing</strong>, not end-to-end transaction accuracy. I don't have a separate measured number for the complete system, so I'm not claiming one — and latency, throughput and deployment counts are omitted for the same reason.</div>
+</article>
+
+<article class="case">
+<div class="case-top"><div><div class="sub">Planogram · Retail Shelf Intelligence</div><h3>Counting stock the camera cannot see</h3></div><div class="meta">U-Net · DPT · Stitching · Detection · Classification</div></div>
+
+<p>Store managers needed shelf state without a stocktake, so they photographed shelves on their phones and the system worked out what was there and how much of it. A full shelf rarely fits in one frame, so images were stitched before anything downstream could run. The counting itself is where it gets interesting — a photograph is a poor witness to inventory, and it is wrong in two opposite directions at once.</p>
+
+<figure>
+<svg viewBox="0 0 900 290" role="img" aria-label="Top-down view of a shelf showing that the camera sees only the front row of products, misses stock stacked behind it, and also captures products belonging to a second shelf further back">
+<defs><marker id="pgA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<rect class="dg-box" x="18" y="134" width="38" height="32" rx="7"/>
+<text class="dg-s" x="37" y="184" text-anchor="middle">phone</text>
+<line x1="58" y1="150" x2="672" y2="58" stroke="rgba(255,255,255,.12)"/>
+<line x1="58" y1="150" x2="672" y2="242" stroke="rgba(255,255,255,.12)"/>
+<rect x="250" y="55" width="11" height="190" rx="3" fill="rgba(255,255,255,.22)"/>
+<text class="dg-s" x="248" y="45" text-anchor="middle">target shelf</text>
+<circle cx="287" cy="85" r="13" fill="rgba(66,232,195,.85)"/><circle cx="287" cy="130" r="13" fill="rgba(66,232,195,.85)"/><circle cx="287" cy="175" r="13" fill="rgba(66,232,195,.85)"/><circle cx="287" cy="220" r="13" fill="rgba(66,232,195,.85)"/>
+<circle cx="322" cy="85" r="13" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="322" cy="130" r="13" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="322" cy="175" r="13" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="322" cy="220" r="13" fill="none" stroke="#929cab" stroke-dasharray="3 3"/>
+<circle cx="357" cy="85" r="13" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="357" cy="130" r="13" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="357" cy="175" r="13" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="357" cy="220" r="13" fill="none" stroke="#929cab" stroke-dasharray="3 3"/>
+<rect x="600" y="55" width="11" height="190" rx="3" fill="rgba(255,255,255,.14)"/>
+<text class="dg-s" x="598" y="45" text-anchor="middle">shelf behind</text>
+<circle cx="638" cy="85" r="13" fill="none" stroke="#ff8b8b"/><circle cx="638" cy="130" r="13" fill="none" stroke="#ff8b8b"/><circle cx="638" cy="175" r="13" fill="none" stroke="#ff8b8b"/><circle cx="638" cy="220" r="13" fill="none" stroke="#ff8b8b"/>
+<circle cx="706" cy="96" r="9" fill="rgba(66,232,195,.85)"/>
+<text class="dg-s" x="724" y="100">seen — the front row</text>
+<circle cx="706" cy="141" r="9" fill="none" stroke="#929cab" stroke-dasharray="3 3"/>
+<text class="dg-s" x="724" y="145">real stock, hidden behind it</text>
+<circle cx="706" cy="186" r="9" fill="none" stroke="#ff8b8b"/>
+<text class="dg-s" x="724" y="190">another shelf, still in frame</text>
+</svg>
+<figcaption>Seen from above, both counting errors are the same geometry. Products stacked behind the front row are real stock that never reaches the sensor, while products on a shelf further back are not stock at all but appear in the picture regardless. Counting what is visible over-reports one and under-reports the other.</figcaption>
+</figure>
+
+<p>So the pipeline corrects the raw detection count twice, in opposite directions, using two different models.</p>
+
+<figure>
+<svg viewBox="0 0 900 200" role="img" aria-label="Pipeline where U-Net segmentation removes products belonging to the shelf behind and DPT depth recovers units stacked out of sight, correcting the count in both directions">
+<defs><marker id="pgB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<rect class="dg-box" x="0" y="60" width="124" height="58" rx="12"/>
+<text class="dg-t" x="62" y="84" text-anchor="middle">Phone images</text>
+<text class="dg-s" x="62" y="102" text-anchor="middle">several per shelf</text>
+<rect class="dg-box" x="154" y="60" width="96" height="58" rx="12"/>
+<text class="dg-t" x="202" y="94" text-anchor="middle">Stitch</text>
+<rect class="dg-box" x="280" y="60" width="150" height="58" rx="12"/>
+<text class="dg-t" x="355" y="84" text-anchor="middle">U-Net</text>
+<text class="dg-s" x="355" y="102" text-anchor="middle">isolate target shelf</text>
+<rect class="dg-box" x="460" y="60" width="120" height="58" rx="12"/>
+<text class="dg-t" x="520" y="84" text-anchor="middle">Detect</text>
+<text class="dg-s" x="520" y="102" text-anchor="middle">+ classify</text>
+<rect class="dg-box" x="610" y="60" width="140" height="58" rx="12"/>
+<text class="dg-t" x="680" y="84" text-anchor="middle">DPT depth</text>
+<text class="dg-s" x="680" y="102" text-anchor="middle">explored</text>
+<rect class="dg-box" x="780" y="60" width="120" height="58" rx="12"/>
+<text class="dg-t" x="840" y="94" text-anchor="middle">Inventory</text>
+<line class="dg-e" x1="124" y1="89" x2="148" y2="89" marker-end="url(#pgB)"/>
+<line class="dg-e" x1="250" y1="89" x2="274" y2="89" marker-end="url(#pgB)"/>
+<line class="dg-e" x1="430" y1="89" x2="454" y2="89" marker-end="url(#pgB)"/>
+<line class="dg-e" x1="580" y1="89" x2="604" y2="89" marker-end="url(#pgB)"/>
+<line class="dg-e" x1="750" y1="89" x2="774" y2="89" marker-end="url(#pgB)"/>
+<line x1="355" y1="118" x2="355" y2="140" stroke="#ff8b8b" stroke-opacity=".6"/>
+<text x="355" y="160" text-anchor="middle" fill="#ff8b8b" font-size="11.5" font-weight="700">drops the shelf behind</text>
+<text class="dg-s" x="355" y="178" text-anchor="middle">stops over-counting</text>
+<line x1="680" y1="118" x2="680" y2="140" stroke="#42e8c3" stroke-opacity=".6"/>
+<text x="680" y="160" text-anchor="middle" fill="#42e8c3" font-size="11.5" font-weight="700">recovers stacked units</text>
+<text class="dg-s" x="680" y="178" text-anchor="middle">stops under-counting</text>
+</svg>
+<figcaption>Segmentation and depth solve opposite halves of the same problem. U-Net removes what does not belong to the shelf being measured; DPT was explored to estimate products arranged in stacks, so the count reflects units present rather than units facing the camera.</figcaption>
+</figure>
+
+<div class="cols">
+<div class="block"><h4>Why segmentation, not a better detector</h4><p>A product on the shelf behind is a perfectly valid detection — the detector is not wrong, it is answering a different question. No amount of detector accuracy fixes it, because the error is about which shelf a correct detection belongs to. That is a segmentation problem, so U-Net isolated the target shelf region before detection ran.</p></div>
+<div class="block"><h4>Why depth mattered</h4><p>Shelf stock is arranged front to back, so the visible face of a row says nothing about how deep it goes. Depth estimation with DPT was explored to reason about products positioned behind one another, turning a count of visible items into something closer to a count of items present.</p></div>
+</div>
+</article>
+
+<article class="case">
+<div class="case-top"><div><div class="sub">Proof of concept · not deployed</div><h3>Early LLMs for retail</h3></div><div class="meta">Llama 2 · Local inference</div></div>
+<p>When the first open-weight LLMs arrived, we wanted to know whether they were useful to a retail business yet. I ran Llama 2 locally, fed it relevant retail material, and explored what a retail-facing chatbot could and could not answer.</p>
+<div class="note">This was a feasibility study, not a product. It never went to production, and the value was in finding out where the models fell short — which is also where my later RAG and grounding work started.</div>
+</article>
+
+<article class="case">
+<div class="case-top"><div><div class="sub">Proof of concept · research</div><h3>2D photographs to a 3D product</h3></div><div class="meta">Stitching · Alignment · Reconstruction</div></div>
+<p>A research effort to build a 3D representation of a product from ordinary photographs taken around it. The work was in stitching and aligning views captured from different sides, then reconstructing geometry from them.</p>
+<div class="note">Also exploratory. No production deployment and no measured reconstruction quality to report, so none is claimed.</div>
 </article>
 </div></section>
 
