@@ -32,7 +32,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <link rel="stylesheet" href="voice/agent.css" />
 </head>
 <body>
-<nav><div class="container nav"><a class="brand" href="index.html">TV<span>.</span></a><div class="navlinks"><a href="index.html">Home</a><a href="#vision">Vision</a><a href="#mintm">MintM</a><a href="#synergy">Synergy Labs</a><a href="#blood">Early Projects</a></div></div></nav>
+<nav><div class="container nav"><a class="brand" href="index.html">TV<span>.</span></a><div class="navlinks"><a href="index.html">Home</a><a href="#vision">Vision</a><a href="#freelance">Freelance</a><a href="#mintm">MintM</a><a href="#synergy">Synergy Labs</a><a href="#blood">Early Projects</a></div></div></nav>
 
 <main>
 <header class="hero container">
@@ -274,8 +274,111 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 </article>
 </div></section>
 
+<section id="freelance"><div class="container">
+<div class="section-head"><div><div class="kicker">02 / Freelance · Feb — Jun 2020</div><h2>Two contracts, two very different cameras.</h2></div><p>Short engagements between roles: one counting human movement in real time, the other measuring manufactured parts. Both proofs of concept, and both interesting for the architecture rather than the model.</p></div>
+
+<article class="case">
+<div class="case-top"><div><div class="sub">Proof of concept · real-time pose</div><h3>Counting push-ups, and judging them</h3></div><div class="meta">MediaPipe Pose · Joint angles · Parallel regions</div></div>
+
+<p>A camera watches someone doing push-ups and counts the reps. MediaPipe Pose gave skeleton landmarks for head, shoulders, arms, torso and legs; the angles between those joints are what actually decide anything. A rep is a transition through the expected posture, so the same angles that count a good push-up also identify a bad one — the system separated correct repetitions from incorrect ones rather than counting every movement.</p>
+
+<p>The part worth showing is how two people were handled on one camera. Rather than running a single pose pipeline across the whole frame, the frame was divided into equal regions and each region processed independently.</p>
+
+<figure>
+<svg viewBox="0 0 900 300" role="img" aria-label="One camera frame divided into two equal regions, each cropped and processed by its own independent pose pipeline in parallel, with the pattern extending to N regions">
+<defs><marker id="puA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<text class="dg-s" x="0" y="40">one camera frame</text>
+<rect class="dg-box" x="0" y="50" width="260" height="190" rx="12"/>
+<line x1="0" y1="145" x2="260" y2="145" stroke="rgba(255,255,255,.3)" stroke-dasharray="5 4"/>
+<circle cx="58" cy="88" r="9" fill="rgba(66,232,195,.8)"/><line x1="72" y1="93" x2="160" y2="104" stroke="#42e8c3" stroke-width="2.5"/>
+<text class="dg-s" x="176" y="99">region 1</text>
+<circle cx="58" cy="188" r="9" fill="rgba(124,140,255,.8)"/><line x1="72" y1="193" x2="160" y2="204" stroke="#7c8cff" stroke-width="2.5"/>
+<text class="dg-s" x="176" y="199">region 2</text>
+<line class="dg-e" x1="260" y1="95" x2="304" y2="95" marker-end="url(#puA)"/>
+<line class="dg-e" x1="260" y1="200" x2="304" y2="200" marker-end="url(#puA)"/>
+<rect class="dg-box" x="310" y="68" width="90" height="54" rx="12"/>
+<text class="dg-t" x="355" y="100" text-anchor="middle">Crop</text>
+<rect class="dg-box" x="430" y="68" width="150" height="54" rx="12"/>
+<text class="dg-t" x="505" y="92" text-anchor="middle">Pose pipeline</text>
+<text class="dg-s" x="505" y="109" text-anchor="middle">MediaPipe landmarks</text>
+<rect class="dg-box" x="610" y="68" width="130" height="54" rx="12"/>
+<text class="dg-t" x="675" y="100" text-anchor="middle">Joint angles</text>
+<rect class="dg-box" x="770" y="68" width="130" height="54" rx="12"/>
+<text class="dg-t" x="835" y="92" text-anchor="middle">Reps</text>
+<text class="dg-s" x="835" y="109" text-anchor="middle">+ form check</text>
+<rect class="dg-box" x="310" y="173" width="90" height="54" rx="12"/>
+<text class="dg-t" x="355" y="205" text-anchor="middle">Crop</text>
+<rect class="dg-box" x="430" y="173" width="150" height="54" rx="12"/>
+<text class="dg-t" x="505" y="197" text-anchor="middle">Pose pipeline</text>
+<text class="dg-s" x="505" y="214" text-anchor="middle">MediaPipe landmarks</text>
+<rect class="dg-box" x="610" y="173" width="130" height="54" rx="12"/>
+<text class="dg-t" x="675" y="205" text-anchor="middle">Joint angles</text>
+<rect class="dg-box" x="770" y="173" width="130" height="54" rx="12"/>
+<text class="dg-t" x="835" y="197" text-anchor="middle">Reps</text>
+<text class="dg-s" x="835" y="214" text-anchor="middle">+ form check</text>
+<line class="dg-e" x1="400" y1="95" x2="424" y2="95" marker-end="url(#puA)"/>
+<line class="dg-e" x1="580" y1="95" x2="604" y2="95" marker-end="url(#puA)"/>
+<line class="dg-e" x1="740" y1="95" x2="764" y2="95" marker-end="url(#puA)"/>
+<line class="dg-e" x1="400" y1="200" x2="424" y2="200" marker-end="url(#puA)"/>
+<line class="dg-e" x1="580" y1="200" x2="604" y2="200" marker-end="url(#puA)"/>
+<line class="dg-e" x1="740" y1="200" x2="764" y2="200" marker-end="url(#puA)"/>
+<rect x="310" y="248" width="590" height="42" rx="12" fill="none" stroke="rgba(255,255,255,.16)" stroke-dasharray="6 5"/>
+<text class="dg-s" x="605" y="274" text-anchor="middle">same pattern, N regions — bounded by camera coverage and compute, not by the design</text>
+</svg>
+<figcaption>Splitting the frame rather than the model means each person gets a clean, isolated pose estimate, and the pipelines run independently in parallel. Two was what the contract needed; nothing in the architecture stops it being more, which is the reason to build it this way rather than special-casing two people.</figcaption>
+</figure>
+
+<div class="cols">
+<div class="block"><h4>Why angles, not appearance</h4><p>A push-up is defined by geometry, not by what a person looks like. Deriving elbow, shoulder and torso angles from landmarks makes the judgement independent of body type, clothing and camera distance, and gives a continuous signal to detect the transitions that mark a repetition.</p></div>
+<div class="block"><h4>Why split the frame</h4><p>One pose pipeline over a frame with two people has to solve association — which limb belongs to whom — before it can count anything. Cropping to a region removes that problem instead of solving it, and each pipeline then faces the single-person case it is good at.</p></div>
+</div>
+<div class="note">A proof of concept. No deployment, and no measured counting accuracy to report, so none is claimed.</div>
+</article>
+
+<article class="case">
+<div class="case-top"><div><div class="sub">Proof of concept · industrial inspection</div><h3>Measuring brake pads for defects</h3></div><div class="meta">OpenCV · Contours · Template matching · Custom CNN</div></div>
+
+<p>A contract for a manufacturer supplying brake pads to the electronics and electrical industry. The task was inspecting manufactured pads for defects and dimensional problems: overall pad geometry, how many holes there were, the diameter of each, and whether they sat in the right positions.</p>
+
+<figure>
+<svg viewBox="0 0 900 270" role="img" aria-label="A brake pad whose inspection questions split into two kinds: geometric measurements answered by classical image processing, and pattern judgements explored with learned models">
+<defs><marker id="bpA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
+<marker id="bpB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker>
+<marker id="bpC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker></defs>
+<text class="dg-s" x="40" y="76">brake pad</text>
+<rect class="dg-box" x="40" y="88" width="290" height="150" rx="42"/>
+<circle cx="110" cy="163" r="23" fill="rgba(7,9,13,.9)" stroke="rgba(255,255,255,.3)"/>
+<circle cx="196" cy="138" r="16" fill="rgba(7,9,13,.9)" stroke="rgba(255,255,255,.3)"/>
+<circle cx="264" cy="188" r="19" fill="rgba(7,9,13,.9)" stroke="rgba(255,255,255,.3)"/>
+<line x1="89" y1="163" x2="131" y2="163" stroke="#42e8c3" marker-start="url(#bpC)" marker-end="url(#bpB)"/>
+<text x="110" y="205" text-anchor="middle" fill="#42e8c3" font-size="11.5" font-weight="700">Ø</text>
+<line x1="196" y1="88" x2="196" y2="122" stroke="rgba(66,232,195,.45)" stroke-dasharray="3 3"/>
+<line x1="40" y1="138" x2="180" y2="138" stroke="rgba(66,232,195,.45)" stroke-dasharray="3 3"/>
+<path d="M238,112 L244,120 M250,108 L256,116 M262,114 L268,122" stroke="#7c8cff" stroke-width="2"/>
+<path class="dg-e" d="M330,163 L400,163 L400,94 L474,94" marker-end="url(#bpA)"/>
+<path class="dg-e" d="M330,163 L400,163 L400,214 L474,214" marker-end="url(#bpA)"/>
+<rect class="dg-box" x="480" y="58" width="420" height="72" rx="14"/>
+<text class="dg-t" x="500" y="84">Classical image processing</text>
+<text class="dg-s" x="500" y="102">contours · custom edge detection · template matching</text>
+<text x="500" y="120" fill="#42e8c3" font-size="11.5" font-weight="700">how many holes · how wide · where</text>
+<rect class="dg-box" x="480" y="178" width="420" height="72" rx="14"/>
+<text class="dg-t" x="500" y="204">Learned models</text>
+<text class="dg-s" x="500" y="222">custom CNN, explored</text>
+<text x="500" y="240" fill="#7c8cff" font-size="11.5" font-weight="700">does this pattern look wrong</text>
+</svg>
+<figcaption>Inspection asked two kinds of question of the same part. Counting holes and measuring a diameter or a position have exact answers, and classical image processing gives them directly — so those were solved with contours, custom edge detection and template matching. Judging whether a surface looks defective has no measurement to take, which is where custom CNN approaches were explored instead.</figcaption>
+</figure>
+
+<div class="cols">
+<div class="block"><h4>Why not reach for a model first</h4><p>A hole diameter is a measurement, not a prediction. Classical techniques return it exactly, are inspectable when they go wrong, and need no training data — all of which matter on a factory line. Reaching for a learned model here would have traded a correct answer for an approximate one.</p></div>
+<div class="block"><h4>What the mix bought</h4><p>Splitting by question type meant each requirement met the technique suited to it, rather than forcing one approach across the whole inspection. The geometric checks stayed deterministic while the harder visual patterns could be explored separately.</p></div>
+</div>
+<div class="note">A proof of concept. I don't have a measured defect-detection accuracy from this project, so no figure is quoted.</div>
+</article>
+</div></section>
+
 <section id="mintm"><div class="container">
-<div class="section-head"><div><div class="kicker">02 / MintM · Mar 2019 — Jan 2020</div><h2>Retail intelligence from CCTV.</h2></div><p>Two different systems: one converted existing CCTV streams into customer-behavior analytics; the other connected computer vision to a physical conveyor system for automated return processing.</p></div>
+<div class="section-head"><div><div class="kicker">03 / MintM · Mar 2019 — Jan 2020</div><h2>Retail intelligence from CCTV.</h2></div><p>Two different systems: one converted existing CCTV streams into customer-behavior analytics; the other connected computer vision to a physical conveyor system for automated return processing.</p></div>
 
 <article class="case">
 <div class="case-top"><div><div class="sub">Retail Footfall & Customer Behavior Analytics</div><h3>Turning CCTV into structured retail data</h3></div><div class="meta">YOLO · Tracking · ResNet · Heatmaps</div></div>
@@ -372,7 +475,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 </div></section>
 
 <section id="synergy"><div class="container">
-<div class="section-head"><div><div class="kicker">03 / Synergy Labs · Jun 2018 — Dec 2018</div><h2>Two separate computer-vision POCs.</h2></div><p>These projects were distinct and should remain separate in the portfolio: one focused on facial recognition and the other on document table understanding.</p></div>
+<div class="section-head"><div><div class="kicker">04 / Synergy Labs · Jun 2018 — Dec 2018</div><h2>Two separate computer-vision POCs.</h2></div><p>These projects were distinct and should remain separate in the portfolio: one focused on facial recognition and the other on document table understanding.</p></div>
 
 <article class="case">
 <div class="case-top"><div><div class="sub">Facial Recognition</div><h3>One-shot learning for office attendance</h3></div><div class="meta">Triplet Loss · Face Recognition · Realtime Camera</div></div>
@@ -395,7 +498,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 </div></section>
 
 <section id="blood"><div class="container">
-<div class="section-head"><div><div class="kicker">04 / Early AI experiments</div><h2>Learning by building.</h2></div><p>Before professional AI work, experimentation with image classification helped establish the foundations for model architecture, evaluation and generalization.</p></div>
+<div class="section-head"><div><div class="kicker">05 / Early AI experiments</div><h2>Learning by building.</h2></div><p>Before professional AI work, experimentation with image classification helped establish the foundations for model architecture, evaluation and generalization.</p></div>
 <article class="case">
 <div class="case-top"><div><div class="sub">Blood Cell Classifier</div><h3>Learning CNNs through image classification</h3></div><div class="meta">Keras · CNN · InceptionV3 · Xception</div></div>
 <p>Built an image-classification pipeline using the Kaggle Blood Cell Images dataset, with four classes: Eosinophil, Lymphocyte, Monocyte and Neutrophil.</p>
