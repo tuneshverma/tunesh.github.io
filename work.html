@@ -18,6 +18,13 @@ section{padding:75px 0;border-top:1px solid rgba(255,255,255,.05)}.section-head{
 .case{border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));padding:32px;margin:22px 0}.case-top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.case h3{font-size:27px;letter-spacing:-.035em;margin:4px 0 8px}.meta{font-size:12px;color:var(--muted);white-space:nowrap}.sub{color:var(--accent);font-size:14px;font-weight:700}.case p{color:var(--muted);max-width:900px}.cols{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:25px}.block{border:1px solid var(--line);background:rgba(13,17,24,.62);border-radius:16px;padding:20px}.block h4{margin:0 0 9px;font-size:14px}.block p,.block li{font-size:14px;color:var(--muted)}.block ul{margin:8px 0 0;padding-left:20px}.flow{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}.flow span{padding:8px 10px;border:1px solid var(--line);border-radius:999px;font-size:12px;color:#cbd2dd;background:rgba(255,255,255,.02)}.arrow{color:var(--accent2);padding:8px 0}
 .metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}.metric{padding:18px;border:1px solid var(--line);border-radius:15px;background:var(--surface)}.metric strong{display:block;font-size:26px;letter-spacing:-.04em}.metric span{font-size:11px;color:var(--muted)}
 .note{border-left:2px solid var(--accent2);padding:8px 0 8px 17px;color:#cbd2dd;font-size:14px;margin-top:22px}
+figure{margin:26px 0;padding:24px 22px 18px;border:1px solid var(--line);border-radius:16px;background:rgba(13,17,24,.62)}
+figure svg{display:block;width:100%;height:auto;color:var(--text);overflow:visible}
+figcaption{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);font-size:13px;color:var(--muted)}
+.dg-box{fill:rgba(255,255,255,.035);stroke:rgba(255,255,255,.16)}
+.dg-t{fill:currentColor;font-family:inherit;font-size:13px;font-weight:700}
+.dg-s{fill:#929cab;font-family:inherit;font-size:11.5px;font-weight:600}
+.dg-e{stroke:rgba(255,255,255,.28);fill:none}
 footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between}
 @media(max-width:800px){.navlinks{display:none}.hero{padding-top:70px}.section-head,.case-top{display:block}.meta{margin-top:8px}.cols{grid-template-columns:1fr}.metric-row{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.container{width:min(var(--max),calc(100% - 28px))}.case{padding:22px}.hero h1{font-size:50px}}
@@ -32,16 +39,200 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <div class="eyebrow">Selected Work / Detailed Case Studies</div>
 <h1>How I went from <span class="gradient">computer vision</span> to intelligent systems.</h1>
 <p>This page captures the engineering stories behind the résumé: the problem, approach, architecture, experiments, deployment and lessons. More case studies will be added as the career story is documented.</p>
-<div class="actions"><a class="btn primary" href="index.html">← Back to portfolio</a><a class="btn" href="#mintm">Jump to MintM</a></div>
+<div class="actions"><a class="btn primary" href="index.html">← Back to portfolio</a><a class="btn" href="#vision">Jump to case studies ↓</a></div>
 </header>
 
+<section id="vision"><div class="container">
+<div class="section-head"><div><div class="kicker">01 / Vision Group · Jul 2020 — Sep 2023</div><h2>An autonomous cooler that watches what you take.</h2></div><p>A vending cooler with no checkout. Scan to unlock, take what you want, close the door — the system works out which products actually left and charges for those.</p></div>
+
+<article class="case">
+<div class="case-top"><div><div class="sub">Autonomous Retail · Smart Vending Cooler</div><h3>From detection to a transaction you can trust</h3></div><div class="meta">YOLO · Classification · Centroid tracking · DeepStream · Jetson</div></div>
+
+<p>A customer scanned a barcode to unlock the cooler, opened the door, took one or more beverages, and closed it. The amount was deducted from their wallet automatically. The hard part was never spotting a bottle. It was working out what the customer <em>picked up</em>, whether it actually left the cooler, whether it came back, and which SKU was ultimately taken — because getting that wrong means charging someone for a drink they put back.</p>
+
+<figure>
+<svg viewBox="0 0 900 190" role="img" aria-label="Two-model pipeline: cameras feed a YOLO detector shared across all deployments, whose crops feed an SKU classifier retrained for each client catalogue">
+<defs><marker id="vgA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<rect class="dg-box" x="0" y="46" width="124" height="54" rx="12"/>
+<text class="dg-t" x="62" y="70" text-anchor="middle">Two cameras</text>
+<text class="dg-s" x="62" y="87" text-anchor="middle">inside the cooler</text>
+<rect class="dg-box" x="176" y="46" width="164" height="54" rx="12"/>
+<text class="dg-t" x="258" y="70" text-anchor="middle">Product detection</text>
+<text class="dg-s" x="258" y="87" text-anchor="middle">custom YOLO</text>
+<rect class="dg-box" x="392" y="46" width="84" height="54" rx="12"/>
+<text class="dg-t" x="434" y="79" text-anchor="middle">Crop</text>
+<rect class="dg-box" x="528" y="46" width="172" height="54" rx="12"/>
+<text class="dg-t" x="614" y="70" text-anchor="middle">SKU classification</text>
+<text class="dg-s" x="614" y="87" text-anchor="middle">which drink is it</text>
+<rect class="dg-box" x="752" y="46" width="148" height="54" rx="12"/>
+<text class="dg-t" x="826" y="79" text-anchor="middle">Product identity</text>
+<line class="dg-e" x1="124" y1="73" x2="170" y2="73" marker-end="url(#vgA)"/>
+<line class="dg-e" x1="340" y1="73" x2="386" y2="73" marker-end="url(#vgA)"/>
+<line class="dg-e" x1="476" y1="73" x2="522" y2="73" marker-end="url(#vgA)"/>
+<line class="dg-e" x1="700" y1="73" x2="746" y2="73" marker-end="url(#vgA)"/>
+<text class="dg-s" x="147" y="36" text-anchor="middle">frames</text>
+<text class="dg-s" x="363" y="36" text-anchor="middle">boxes</text>
+<text class="dg-s" x="499" y="36" text-anchor="middle">crop</text>
+<text class="dg-s" x="723" y="36" text-anchor="middle">SKU</text>
+<path d="M176,112 L176,122 L340,122 L340,112" fill="none" stroke="#42e8c3" stroke-opacity=".55"/>
+<text x="258" y="141" text-anchor="middle" fill="#42e8c3" font-size="11.5" font-weight="700">Shared across deployments</text>
+<text class="dg-s" x="258" y="158" text-anchor="middle">one detector generalises</text>
+<path d="M528,112 L528,122 L700,122 L700,112" fill="none" stroke="#7c8cff" stroke-opacity=".55"/>
+<text x="614" y="141" text-anchor="middle" fill="#7c8cff" font-size="11.5" font-weight="700">Retrained per client</text>
+<text class="dg-s" x="614" y="158" text-anchor="middle">catalogues ran from ~7 to ~15 SKUs</text>
+</svg>
+<figcaption>Detection and identification were split into two models on purpose. Finding a handheld product generalises across sites, so one detector served every deployment; knowing <em>which</em> drink it is depends entirely on that client's catalogue, so only the classifier was retrained per customer.</figcaption>
+</figure>
+
+<div class="cols">
+<div class="block"><h4>Training the detector</h4><ul><li>Captured a substantial dataset across camera viewpoints and operating conditions.</li><li>Covered angles from the top to the bottom of the cooler, varied lighting, and camera fogging.</li><li>Included partial obstruction, different ways customers hold bottles, and different product positions.</li><li>Videos were annotated by hand, then heavily augmented for robustness.</li><li>Reached <strong>98%+ detection accuracy during internal testing</strong>.</li></ul></div>
+<div class="block"><h4>Why two models, not one</h4><p>A single detector trained on every client's SKUs would need retraining each time a catalogue changed, and would grow harder to train as products multiplied. Splitting the problem meant a new client only required a new classifier over the same detector.</p></div>
+</div>
+
+<h4 style="margin:34px 0 0;font-size:15px">Picked, returned, picked again</h4>
+<p>Detection and classification still aren't enough. A customer can lift a bottle, change their mind, put it back, and take a different one. A system that charges for whatever leaves the frame would bill them for both.</p>
+
+<figure>
+<svg viewBox="0 0 900 250" role="img" aria-label="Timeline showing bottle A leaving the cooler and being returned while bottle B leaves and stays out, so only bottle B is charged">
+<defs><marker id="vgB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<line x1="100" y1="140" x2="680" y2="140" stroke="rgba(255,255,255,.3)" stroke-dasharray="5 5"/>
+<text class="dg-s" x="100" y="131">cooler boundary</text>
+<text class="dg-s" x="110" y="52">inside</text>
+<text class="dg-s" x="110" y="226">outside</text>
+<path d="M110,82 L200,82 L250,190 L380,190 L430,82 L660,82" fill="none" stroke="#929cab" stroke-width="2"/>
+<circle cx="250" cy="190" r="4" fill="#929cab"/><circle cx="430" cy="82" r="4" fill="#929cab"/>
+<text class="dg-t" x="95" y="86" text-anchor="end" fill="#929cab">Bottle A</text>
+<path d="M110,108 L470,108 L520,196 L660,196" fill="none" stroke="#42e8c3" stroke-width="2"/>
+<circle cx="520" cy="196" r="4" fill="#42e8c3"/>
+<text class="dg-t" x="95" y="112" text-anchor="end" fill="#42e8c3">Bottle B</text>
+<text class="dg-s" x="315" y="212" text-anchor="middle">taken out…</text>
+<text class="dg-s" x="452" y="70" text-anchor="middle">…put back</text>
+<text class="dg-s" x="590" y="218" text-anchor="middle">taken out, stays out</text>
+<line class="dg-e" x1="668" y1="140" x2="706" y2="140" marker-end="url(#vgB)"/>
+<rect x="715" y="104" width="185" height="72" rx="14" fill="rgba(66,232,195,.09)" stroke="#42e8c3" stroke-opacity=".5"/>
+<text class="dg-s" x="807" y="132" text-anchor="middle">door closes → charge</text>
+<text x="807" y="156" text-anchor="middle" fill="#42e8c3" font-size="16" font-weight="800">Bottle B only</text>
+</svg>
+<figcaption>Centroid tracking followed each detected product against a defined cooler region, so the system reasoned about net position over time rather than momentary presence. A bottle that crosses out and back again is worth nothing; only what is still outside when the door closes gets charged.</figcaption>
+</figure>
+
+<h4 style="margin:34px 0 0;font-size:15px">The hard part: one symptom, four suspects</h4>
+<p>The real engineering difficulty was raising end-to-end reliability, because every failure looks identical from the outside. A customer is charged the wrong amount — and nothing in that outcome tells you which stage broke.</p>
+
+<figure>
+<svg viewBox="0 0 900 232" role="img" aria-label="Four pipeline stages each producing the same observable symptom, a wrong charge, which is why failures had to be attributed per component">
+<defs><marker id="vgC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,139,139,.55)"/></marker></defs>
+<rect class="dg-box" x="0" y="16" width="200" height="50" rx="12"/>
+<text class="dg-t" x="100" y="46" text-anchor="middle">Detection</text>
+<rect class="dg-box" x="233" y="16" width="200" height="50" rx="12"/>
+<text class="dg-t" x="333" y="46" text-anchor="middle">Classification</text>
+<rect class="dg-box" x="466" y="16" width="200" height="50" rx="12"/>
+<text class="dg-t" x="566" y="46" text-anchor="middle">Tracking</text>
+<rect class="dg-box" x="699" y="16" width="201" height="50" rx="12"/>
+<text class="dg-t" x="799" y="46" text-anchor="middle">In / out decision</text>
+<text x="100" y="92" text-anchor="middle" fill="#ff8b8b" font-size="11.5" font-weight="700">product never seen</text>
+<text x="333" y="92" text-anchor="middle" fill="#ff8b8b" font-size="11.5" font-weight="700">wrong SKU</text>
+<text x="566" y="92" text-anchor="middle" fill="#ff8b8b" font-size="11.5" font-weight="700">identity swapped</text>
+<text x="799" y="92" text-anchor="middle" fill="#ff8b8b" font-size="11.5" font-weight="700">crossing misread</text>
+<line x1="100" y1="104" x2="100" y2="152" stroke="rgba(255,139,139,.4)" marker-end="url(#vgC)"/>
+<line x1="333" y1="104" x2="333" y2="152" stroke="rgba(255,139,139,.4)" marker-end="url(#vgC)"/>
+<line x1="566" y1="104" x2="566" y2="152" stroke="rgba(255,139,139,.4)" marker-end="url(#vgC)"/>
+<line x1="799" y1="104" x2="799" y2="152" stroke="rgba(255,139,139,.4)" marker-end="url(#vgC)"/>
+<rect x="0" y="160" width="900" height="56" rx="14" fill="rgba(255,139,139,.07)" stroke="rgba(255,139,139,.35)"/>
+<text x="450" y="185" text-anchor="middle" fill="#ff8b8b" font-size="14" font-weight="800">Observed symptom: the wrong amount is charged</text>
+<text class="dg-s" x="450" y="204" text-anchor="middle">identical for all four causes</text>
+</svg>
+<figcaption>Because the symptom is the same whichever stage fails, the fix was diagnostic rather than algorithmic: build extensive test data and label every failure by the component responsible. Once a bad transaction could be attributed to detection, classification, tracking or the in/out decision, each stage could be improved on its own evidence.</figcaption>
+</figure>
+
+<h4 style="margin:34px 0 0;font-size:15px">Two deployments, one pipeline</h4>
+<p>The same DeepStream pipeline shipped in two configurations, and what differs between them is simply where the video is processed — and therefore what has to cross the network.</p>
+
+<figure>
+<svg viewBox="0 0 900 300" role="img" aria-label="Cloud deployment sends video frames across the network to Azure, while the edge deployment processes frames on a Jetson device and sends only the transaction">
+<defs>
+<marker id="vgD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
+<marker id="vgE" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(124,140,255,.6)"/></marker>
+</defs>
+<line x1="340" y1="14" x2="340" y2="286" stroke="rgba(255,255,255,.22)" stroke-dasharray="6 6"/>
+<text class="dg-s" x="348" y="26">network</text>
+<rect class="dg-box" x="0" y="130" width="130" height="58" rx="12"/>
+<text class="dg-t" x="65" y="155" text-anchor="middle">Cooler</text>
+<text class="dg-t" x="65" y="173" text-anchor="middle">cameras</text>
+<path class="dg-e" d="M130,146 L250,146 L250,64 L384,64" marker-end="url(#vgD)"/>
+<rect class="dg-box" x="390" y="36" width="210" height="56" rx="12"/>
+<text class="dg-t" x="495" y="60" text-anchor="middle">Azure · DeepStream</text>
+<text class="dg-s" x="495" y="78" text-anchor="middle">cloud, warehouse sites</text>
+<text x="348" y="84" fill="#7c8cff" font-size="11.5" font-weight="700">video frames cross</text>
+<line class="dg-e" x1="600" y1="64" x2="654" y2="64" marker-end="url(#vgD)"/>
+<rect class="dg-box" x="660" y="36" width="180" height="56" rx="12"/>
+<text class="dg-t" x="750" y="70" text-anchor="middle">Transaction</text>
+<path class="dg-e" d="M130,172 L150,172 L150,234 L164,234" marker-end="url(#vgD)"/>
+<rect class="dg-box" x="170" y="206" width="150" height="56" rx="12"/>
+<text class="dg-t" x="245" y="230" text-anchor="middle">Jetson</text>
+<text class="dg-s" x="245" y="248" text-anchor="middle">DeepStream on device</text>
+<line class="dg-e" x1="320" y1="234" x2="654" y2="234" marker-end="url(#vgD)"/>
+<text x="348" y="256" fill="#42e8c3" font-size="11.5" font-weight="700">only the transaction crosses</text>
+<rect class="dg-box" x="660" y="206" width="180" height="56" rx="12"/>
+<text class="dg-t" x="750" y="240" text-anchor="middle">Transaction</text>
+<path d="M495,100 L495,122 L245,122 L245,200" fill="none" stroke="rgba(124,140,255,.5)" stroke-dasharray="5 4" marker-end="url(#vgE)"/>
+<text x="370" y="114" text-anchor="middle" fill="#7c8cff" font-size="11.5" font-weight="700">model + container updates</text>
+</svg>
+<figcaption>Warehouse sites ran the pipeline in Azure; offices and other commercial locations ran it on an NVIDIA Jetson beside the cooler, so frames never left the premises. Azure-based device management pushed updated models and Docker containers out to deployed devices either way.</figcaption>
+</figure>
+
+<div class="cols">
+<div class="block"><h4>What this project actually was</h4><p>Not "I trained a YOLO model". Detection, classification, tracking, temporal reasoning, edge deployment and remote model management, composed into a system that takes money from someone's wallet without a human in the loop. The interesting engineering lives in the seams between those parts, not inside any one of them.</p></div>
+<div class="block"><h4>What I took from it</h4><p>That a pipeline's accuracy is not the product of its stages' accuracies — it is limited by whichever stage you cannot observe. Making failure attributable per component did more for reliability than any single model improvement.</p></div>
+</div>
+
+<div class="note">The 98%+ figure is <strong>detection accuracy measured during internal testing</strong>, not end-to-end transaction accuracy. I don't have a separate measured number for the complete system, so I'm not claiming one — and latency, throughput and deployment counts are omitted for the same reason.</div>
+</article>
+</div></section>
+
 <section id="mintm"><div class="container">
-<div class="section-head"><div><div class="kicker">01 / MintM · Mar 2019 — Jan 2020</div><h2>Retail intelligence from CCTV.</h2></div><p>Two different systems: one converted existing CCTV streams into customer-behavior analytics; the other connected computer vision to a physical conveyor system for automated return processing.</p></div>
+<div class="section-head"><div><div class="kicker">02 / MintM · Mar 2019 — Jan 2020</div><h2>Retail intelligence from CCTV.</h2></div><p>Two different systems: one converted existing CCTV streams into customer-behavior analytics; the other connected computer vision to a physical conveyor system for automated return processing.</p></div>
 
 <article class="case">
 <div class="case-top"><div><div class="sub">Retail Footfall & Customer Behavior Analytics</div><h3>Turning CCTV into structured retail data</h3></div><div class="meta">YOLO · Tracking · ResNet · Heatmaps</div></div>
 <p>The business objective was to transform existing CCTV infrastructure in retail stores into useful data for stakeholders: how many people enter and leave, which doors they use, visitor gender distribution, and where customers spend time inside the store.</p>
-<div class="flow"><span>CCTV streams</span><i class="arrow">→</i><span>YOLO person detection</span><i class="arrow">→</i><span>Centroid tracking</span><i class="arrow">→</i><span>Line / zone analytics</span><i class="arrow">→</i><span>Retail insights</span></div>
+<figure>
+<svg viewBox="0 0 900 262" role="img" aria-label="One CCTV view carries several virtual door lines; detection and tracking run once and the resulting tracks feed footfall counts, gender split and heatmaps">
+<defs>
+<marker id="mmA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
+<marker id="mmB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker>
+<marker id="mmC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#929cab"/></marker>
+</defs>
+<text class="dg-s" x="0" y="42">one existing CCTV view</text>
+<rect class="dg-box" x="0" y="54" width="240" height="170" rx="14"/>
+<line x1="16" y1="104" x2="224" y2="104" stroke="rgba(255,255,255,.26)" stroke-dasharray="4 4"/>
+<text class="dg-s" x="20" y="98">Door A</text>
+<line x1="16" y1="180" x2="224" y2="180" stroke="rgba(255,255,255,.26)" stroke-dasharray="4 4"/>
+<text class="dg-s" x="20" y="174">Door B</text>
+<path d="M70,70 L80,94 L88,128" fill="none" stroke="#42e8c3" stroke-width="2" marker-end="url(#mmB)"/>
+<text x="96" y="124" fill="#42e8c3" font-size="11.5" font-weight="700">in</text>
+<path d="M184,208 L174,188 L166,152" fill="none" stroke="#929cab" stroke-width="2" marker-end="url(#mmC)"/>
+<text class="dg-s" x="158" y="150" text-anchor="end">out</text>
+<line class="dg-e" x1="240" y1="140" x2="294" y2="140" marker-end="url(#mmA)"/>
+<text class="dg-s" x="267" y="132" text-anchor="middle">frames</text>
+<rect class="dg-box" x="300" y="112" width="160" height="56" rx="12"/>
+<text class="dg-t" x="380" y="136" text-anchor="middle">Detect + track</text>
+<text class="dg-s" x="380" y="153" text-anchor="middle">YOLO + centroid</text>
+<path class="dg-e" d="M460,140 L508,140 L508,63 L548,63" marker-end="url(#mmA)"/>
+<line class="dg-e" x1="460" y1="140" x2="548" y2="140" marker-end="url(#mmA)"/>
+<path class="dg-e" d="M460,140 L508,140 L508,217 L548,217" marker-end="url(#mmA)"/>
+<rect class="dg-box" x="560" y="36" width="340" height="54" rx="12"/>
+<text class="dg-t" x="730" y="58" text-anchor="middle">Footfall in / out</text>
+<text class="dg-s" x="730" y="76" text-anchor="middle">which track crossed which line, and which way</text>
+<rect class="dg-box" x="560" y="113" width="340" height="54" rx="12"/>
+<text class="dg-t" x="730" y="135" text-anchor="middle">Gender split</text>
+<text class="dg-s" x="730" y="153" text-anchor="middle">ResNet on the same person crops · ~91%</text>
+<rect class="dg-box" x="560" y="190" width="340" height="54" rx="12"/>
+<text class="dg-t" x="730" y="212" text-anchor="middle">Heatmaps + dwell</text>
+<text class="dg-s" x="730" y="230" text-anchor="middle">where the same centroids linger, and how long</text>
+</svg>
+<figcaption>Detection and tracking run once; everything else is a different question asked of the same tracks. Virtual lines are drawn per entry region rather than per camera, which is why one view can count several doors independently — the direction a track crosses a line is what makes it an entry or an exit.</figcaption>
+</figure>
 <div class="cols">
 <div class="block"><h4>Footfall & tracking</h4><ul><li>Used existing CCTV cameras and processed multiple camera streams.</li><li>YOLO detected people and centroid tracking maintained movement over time.</li><li>Virtual lines were placed around entry/exit regions to calculate IN/OUT counts.</li><li>A single camera could support multiple doors or entry/exit regions.</li><li>Tracking logic was strengthened to make counting more reliable.</li></ul></div>
 <div class="block"><h4>Gender classification</h4><ul><li>Person bounding-box crops from the detector were collected and manually labeled.</li><li>Created roughly 5,000 male + 5,000 female samples.</li><li>Trained a ResNet-based classifier and integrated it with the detection pipeline.</li><li>Every detected person could be classified in parallel as male/female.</li><li>About 91% accuracy was observed on the deployed system during team testing.</li></ul></div>
@@ -53,7 +244,39 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <article class="case">
 <div class="case-top"><div><div class="sub">BigBasket · Return-to-Vendor</div><h3>Automated barcode verification on a conveyor</h3></div><div class="meta">Computer Vision · Image Processing · State Machine · Tracking</div></div>
 <p>A real-time warehouse system for identifying returned products. Returned items were placed onto a conveyor, brought in front of a camera, scanned, and verified against the barcode/product dataset supplied by BigBasket.</p>
-<div class="flow"><span>Returned item</span><i class="arrow">→</i><span>Conveyor</span><i class="arrow">→</i><span>Camera</span><i class="arrow">→</i><span>Barcode reading</span><i class="arrow">→</i><span>Database verification</span><i class="arrow">→</i><span>Conveyor control</span></div>
+<figure>
+<svg viewBox="0 0 900 300" role="img" aria-label="A read failure sends the belt backwards to present the item again, and a second failure stops the belt to hold it in view, so the vision result drives the conveyor motor">
+<defs>
+<marker id="cvA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
+<marker id="cvB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker>
+<marker id="cvC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7c8cff"/></marker>
+</defs>
+<rect class="dg-box" x="0" y="122" width="150" height="56" rx="12"/>
+<text class="dg-t" x="75" y="146" text-anchor="middle">Item enters</text>
+<text class="dg-s" x="75" y="163" text-anchor="middle">tracked in a region</text>
+<line class="dg-e" x1="150" y1="150" x2="194" y2="150" marker-end="url(#cvA)"/>
+<rect class="dg-box" x="200" y="122" width="150" height="56" rx="12"/>
+<text class="dg-t" x="275" y="146" text-anchor="middle">Read barcode</text>
+<text class="dg-s" x="275" y="163" text-anchor="middle">library + preprocessing</text>
+<line class="dg-e" x1="350" y1="150" x2="404" y2="150" marker-end="url(#cvA)"/>
+<rect class="dg-box" x="410" y="122" width="130" height="56" rx="12"/>
+<text class="dg-t" x="475" y="155" text-anchor="middle">Read OK?</text>
+<path class="dg-e" d="M540,140 L580,140 L580,77 L614,77" marker-end="url(#cvA)"/>
+<text class="dg-s" x="588" y="108">yes</text>
+<rect class="dg-box" x="620" y="50" width="210" height="54" rx="12"/>
+<text class="dg-t" x="725" y="72" text-anchor="middle">Verify vs catalogue</text>
+<text class="dg-s" x="725" y="90" text-anchor="middle">client-provided dataset</text>
+<line class="dg-e" x1="725" y1="104" x2="725" y2="140" marker-end="url(#cvA)"/>
+<rect class="dg-box" x="620" y="146" width="210" height="54" rx="12"/>
+<text class="dg-t" x="725" y="178" text-anchor="middle">Continue forward</text>
+<text class="dg-s" x="486" y="196">no</text>
+<path d="M470,178 L470,222 L242,222 L242,184" fill="none" stroke="#42e8c3" stroke-opacity=".7" marker-end="url(#cvB)"/>
+<text x="356" y="215" text-anchor="middle" fill="#42e8c3" font-size="11.5" font-weight="700">belt reverses — present the item again</text>
+<path d="M500,178 L500,266 L305,266 L305,184" fill="none" stroke="#7c8cff" stroke-opacity=".7" marker-end="url(#cvC)"/>
+<text x="402" y="284" text-anchor="middle" fill="#7c8cff" font-size="11.5" font-weight="700">still failing — belt stops and holds it in view</text>
+</svg>
+<figcaption>The loops are the point: a failed read doesn't raise an exception, it drives the motor. The first failure reverses the belt to re-present the item, and a second stops it entirely to hold the item in front of the camera — so the vision result is a control signal for physical hardware, not just a database lookup.</figcaption>
+</figure>
 <div class="cols">
 <div class="block"><h4>Reliable barcode reading</h4><ul><li>Used barcode-reading libraries together with image-processing techniques.</li><li>Tracked the product through a defined virtual rectangular region.</li><li>The system continuously evaluated whether the barcode had been read successfully.</li></ul></div>
 <div class="block"><h4>Closed-loop state machine</h4><ul><li>If the barcode was read, the item could continue forward after verification.</li><li>If reading failed, the conveyor could reverse and present the item to the camera again.</li><li>If it still failed, the conveyor could stop for a defined period to allow another read.</li><li>The computer-vision result directly controlled physical conveyor behavior.</li></ul></div>
@@ -65,7 +288,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 </div></section>
 
 <section id="synergy"><div class="container">
-<div class="section-head"><div><div class="kicker">02 / Synergy Labs · Jun 2018 — Dec 2018</div><h2>Two separate computer-vision POCs.</h2></div><p>These projects were distinct and should remain separate in the portfolio: one focused on facial recognition and the other on document table understanding.</p></div>
+<div class="section-head"><div><div class="kicker">03 / Synergy Labs · Jun 2018 — Dec 2018</div><h2>Two separate computer-vision POCs.</h2></div><p>These projects were distinct and should remain separate in the portfolio: one focused on facial recognition and the other on document table understanding.</p></div>
 
 <article class="case">
 <div class="case-top"><div><div class="sub">Facial Recognition</div><h3>One-shot learning for office attendance</h3></div><div class="meta">Triplet Loss · Face Recognition · Realtime Camera</div></div>
@@ -88,7 +311,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 </div></section>
 
 <section id="blood"><div class="container">
-<div class="section-head"><div><div class="kicker">03 / Early AI experiments</div><h2>Learning by building.</h2></div><p>Before professional AI work, experimentation with image classification helped establish the foundations for model architecture, evaluation and generalization.</p></div>
+<div class="section-head"><div><div class="kicker">04 / Early AI experiments</div><h2>Learning by building.</h2></div><p>Before professional AI work, experimentation with image classification helped establish the foundations for model architecture, evaluation and generalization.</p></div>
 <article class="case">
 <div class="case-top"><div><div class="sub">Blood Cell Classifier</div><h3>Learning CNNs through image classification</h3></div><div class="meta">Keras · CNN · InceptionV3 · Xception</div></div>
 <p>Built an image-classification pipeline using the Kaggle Blood Cell Images dataset, with four classes: Eosinophil, Lymphocyte, Monocyte and Neutrophil.</p>
