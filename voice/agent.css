@@ -17,12 +17,15 @@
   backdrop-filter: blur(18px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.32s ease;
+  visibility: hidden;
+  transition: opacity 0.32s ease, visibility 0s linear 0.32s;
 }
 
 .va-overlay[data-open="true"] {
   opacity: 1;
   pointer-events: auto;
+  visibility: visible;
+  transition: opacity 0.32s ease, visibility 0s;
 }
 
 .va-panel {
@@ -63,6 +66,15 @@
 
 .va-close:hover {
   color: var(--text, #eef2f7);
+}
+
+/* The escape hatch from a modal holding the microphone open should not be the
+   smallest target in it. The disc stays 34px; the hit area reaches 44px. */
+.va-close::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
 }
 
 .va-eyebrow {
@@ -142,7 +154,7 @@
 
 .va-btn {
   padding: 12px 18px;
-  border: 1px solid var(--line, #202733);
+  border: 1px solid var(--line-strong, #5c6878);
   border-radius: 12px;
   background: var(--surface2, #111722);
   color: var(--text, #eef2f7);
@@ -235,6 +247,14 @@
   color: var(--accent, #7c8cff);
 }
 
+/* After a failure the one useful action should not be the faintest thing in
+   the panel, competing with a red error message and a teal eyebrow. */
+.va-overlay[data-phase="error"] .va-retry {
+  border-color: rgba(124, 140, 255, 0.7);
+  background: rgba(124, 140, 255, 0.14);
+  color: #aeb8ff;
+}
+
 /* Arriving from a link, this is the primary action, so it carries weight. */
 .va-overlay[data-phase="ready"] .va-retry {
   padding: 14px 30px;
@@ -285,7 +305,10 @@
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 90;
+  /* Under the sticky nav (20), over ordinary page content. At the anchored
+     position on a phone the orb used to paint across the only navigation
+     left on the page. */
+  z-index: 19;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -307,10 +330,14 @@
   transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
 }
 
-/* Before you have scrolled down to the slot there is no button at all. */
+/* Before you have scrolled down to the slot there is no button at all —
+   including for the keyboard. opacity alone left a focusable control parked
+   off-screen that opened a modal and asked for a microphone. */
 .va-fab--hidden {
   opacity: 0;
   pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0s linear 0.4s;
 }
 
 .va-fab-orb-wrap {
@@ -397,7 +424,9 @@
   .va-overlay,
   .va-panel,
   .va-btn,
-  .va-fab {
+  .va-fab,
+  .va-fab-orb-wrap,
+  .va-fab-label {
     transition: none;
   }
 

@@ -1051,13 +1051,22 @@
     var vh = window.innerHeight;
     var w = fab.offsetWidth;
     var h = fab.offsetHeight;
-    if (!w || !h || !anchor) return;
+    if (!w || !h) return;
 
-    var r = anchor.getBoundingClientRect();
+    var r = null;
     var next;
-    if (r.top > vh * 0.94) next = "hidden";
-    else if (r.bottom < vh * 0.18) next = "docked";
-    else next = "anchored";
+    if (!anchor) {
+      // A page with no slot still gets the button, in the corner. Returning
+      // here instead left the launcher parked at its initial -9999px
+      // transform: invisible, but still focusable, still opening a modal that
+      // asks for a microphone, and still repainting its canvas every frame.
+      next = "docked";
+    } else {
+      r = anchor.getBoundingClientRect();
+      if (r.top > vh * 0.94) next = "hidden";
+      else if (r.bottom < vh * 0.18) next = "docked";
+      else next = "anchored";
+    }
 
     var orbW = orbWrap.offsetWidth || 1;
     var dockScale = DOCK_DIAMETER / orbW;
