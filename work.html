@@ -18,15 +18,50 @@ section{padding:75px 0;border-top:1px solid rgba(255,255,255,.05)}.section-head{
 .case{border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));padding:32px;margin:22px 0}.case-top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.case h3{font-size:27px;letter-spacing:-.035em;margin:4px 0 8px}.meta{font-size:12px;color:var(--muted);white-space:nowrap}.sub{color:var(--accent);font-size:14px;font-weight:700}.case p{color:var(--muted);max-width:900px}.cols{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:25px}.block{border:1px solid var(--line);background:rgba(13,17,24,.62);border-radius:16px;padding:20px}.block h4{margin:0 0 9px;font-size:14px}.block p,.block li{font-size:14px;color:var(--muted)}.block ul{margin:8px 0 0;padding-left:20px}.flow{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}.flow span{padding:8px 10px;border:1px solid var(--line);border-radius:999px;font-size:12px;color:#cbd2dd;background:rgba(255,255,255,.02)}.arrow{color:var(--accent2);padding:8px 0}
 .metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}.metric{padding:18px;border:1px solid var(--line);border-radius:15px;background:var(--surface)}.metric strong{display:block;font-size:26px;letter-spacing:-.04em}.metric span{font-size:11px;color:var(--muted)}
 .note{border-left:2px solid var(--accent2);padding:8px 0 8px 17px;color:#cbd2dd;font-size:14px;margin-top:22px}
-figure{margin:26px 0;padding:24px 22px 18px;border:1px solid var(--line);border-radius:16px;background:rgba(13,17,24,.62)}
+figure{position:relative;margin:26px 0;padding:24px 22px 18px;border:1px solid var(--line);border-radius:16px;background:rgba(13,17,24,.62)}
 figure svg{display:block;width:100%;height:auto;color:var(--text);overflow:visible}
 figcaption{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);font-size:13px;color:var(--muted)}
 .dg-box{fill:rgba(255,255,255,.035);stroke:rgba(255,255,255,.16)}
 .dg-t{fill:currentColor;font-family:inherit;font-size:13px;font-weight:700}
 .dg-s{fill:#929cab;font-family:inherit;font-size:11.5px;font-weight:600}
 .dg-e{stroke:rgba(255,255,255,.28);fill:none}
+.dg-hint{display:none}
+/* Every diagram is drawn on a 900-unit canvas. Inside a phone-width card that
+   renders its 13px labels at under four CSS pixels, which is not small text,
+   it is no text at all. Shrinking the canvas is not an option — the boxes are
+   positioned, so the type cannot grow without colliding with them.
+   So on a narrow screen the diagram holds a width its labels survive and the
+   figure pans sideways instead. A swipe is a real cost; being unable to read any of
+   it was a bigger one.
+
+   The cutoff is the page's own 800px breakpoint, which is also about where
+   the canvas stops being crushed: a landscape phone at 844 already fits the
+   whole thing at 10px and is left alone, a tablet in portrait at 768 would
+   otherwise sit at 8.9px and is not. */
+@media(max-width:800px){
+  figure{padding:20px 0 16px}
+  figcaption{margin:0 20px;padding-top:14px}
+  .dg-pan{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent;
+    padding:0 20px 2px;
+    /* Fades the right edge while there is more diagram out there, and is
+       dropped by script the moment you reach the end of one. */
+    -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 44px),transparent);
+    mask-image:linear-gradient(90deg,#000 calc(100% - 44px),transparent)}
+  .dg-pan[data-end="true"]{-webkit-mask-image:none;mask-image:none}
+  /* 800 is where 13px labels land back around 11.5px, which is the smallest
+     this page asks anyone to read elsewhere. */
+  .dg-pan svg{min-width:800px}
+  /* Shown on the first diagram only, and only until the gesture is used. */
+  .dg-hint{display:block;position:absolute;top:10px;right:14px;
+    font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--accent2);
+    background:rgba(13,17,24,.92);border:1px solid rgba(66,232,195,.3);
+    border-radius:999px;padding:3px 10px;pointer-events:none;
+    transition:opacity .3s ease}
+  figure[data-hint="used"] .dg-hint{opacity:0}
+}
 footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between}
-@media(max-width:800px){.navlinks{display:none}.hero{padding-top:70px}.section-head,.case-top{display:block}.meta{margin-top:8px}.cols{grid-template-columns:1fr}.metric-row{grid-template-columns:1fr 1fr}}
+@media(max-width:800px){.navlinks{display:none}.hero{padding-top:70px}.section-head,.case-top{display:block}.meta{margin-top:8px;white-space:normal}.cols{grid-template-columns:1fr}.metric-row{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.container{width:min(var(--max),calc(100% - 28px))}.case{padding:22px}.hero h1{font-size:50px}}
 </style>
 <link rel="stylesheet" href="voice/agent.css" />
@@ -51,6 +86,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <p>Before a session starts, the rep configures who they are about to meet: the type of healthcare professional, and what kind of person they are — how strict, how sceptical, and the other traits that decide whether this is an easy conversation or a hard one. Then the roleplay runs live, in voice.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 236" role="img" aria-label="A session runs from configuring the clinician persona, through a roleplay of about seven minutes where the AI asks what real clinicians ask, into a closure the rep must handle, and finally a report scored across categories">
 <defs><marker id="ppA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
 <marker id="ppB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker>
@@ -75,6 +111,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <text x="340" y="190" text-anchor="middle" fill="#42e8c3" font-size="11.5" font-weight="700">it asks what real clinicians ask — and answers a good question back</text>
 <text class="dg-s" x="340" y="210" text-anchor="middle">the rep has to hold their side of a conversation, not recite a pitch</text>
 </svg>
+</div>
 <figcaption>The clinician is not a quiz. It raises the objections a rep actually meets, and when the rep asks something relevant it answers — so the session behaves like a conversation with its own direction. Closing matters too: the rep has to end the call properly rather than simply running out of things to say, and that final stretch is assessed along with the rest.</figcaption>
 </figure>
 
@@ -92,6 +129,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <p>Two more products grew out of this work. What separates them is who does the answering — and that turns out to decide how the analysis has to work.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 300" role="img" aria-label="PraxisPlay and PraxisCertify both analyse the rep's own responses through a shared reporting engine, while PraxisCoach analyses a manager's recorded judgement through a separate one">
 <defs><marker id="pcA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
 <marker id="pcB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7c8cff"/></marker></defs>
@@ -123,6 +161,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <text class="dg-s" x="750" y="258" text-anchor="middle">taken away and filed in their systems</text>
 <line x1="0" y1="186" x2="900" y2="186" stroke="rgba(255,255,255,.12)" stroke-dasharray="5 5"/>
 </svg>
+</div>
 <figcaption>Play and Certify both read the rep's own words — one from open conversation, one against a fixed set of questions — so they share a reporting engine. Coach sits below the line because its input is not a performance at all: the manager answers the questions, recording how they judged the session. Analysing someone's judgement is a different problem from analysing someone's performance, so it needed its own analysis rather than a variation of the first.</figcaption>
 </figure>
 </article>
@@ -133,6 +172,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <p>A clinician who cannot discuss the drug being pitched is not useful to anyone. Clients supply their own product documentation, and an internal platform turns it into a knowledge base for that client — so the questions the AI asks, and the answers it gives back, sit in their material rather than in general medical knowledge.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 180" role="img" aria-label="Client product documents are processed by an internal platform into a per-client knowledge base, which grounds the clinician in the roleplay">
 <defs><marker id="kgA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
 <rect class="dg-box" x="0" y="44" width="190" height="64" rx="12"/>
@@ -152,6 +192,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <line class="dg-e" x1="690" y1="76" x2="734" y2="76" marker-end="url(#kgA)"/>
 <text class="dg-s" x="450" y="142" text-anchor="middle">roughly 150,000 question-and-answer pairs per client knowledge base</text>
 </svg>
+</div>
 <figcaption>The pipeline is the reason the product generalises. Onboarding a new client is a matter of processing their documentation rather than rebuilding the roleplay, which is also what makes the persona library — in the hundreds across clients — worth having.</figcaption>
 </figure>
 
@@ -168,6 +209,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <p>Organisations have domain knowledge sitting in PDFs, call recordings and video, and no route from that to a model of their own. Create Brain was the route: a drag-and-drop pipeline where a customer configured the stages and the platform handled ingestion, dataset creation, training and deployment without anyone writing the ML workflow by hand.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 310" role="img" aria-label="Customer data becomes a deployed model, and a second loop generates test cases with an LLM, calls the deployed API, analyses the responses and feeds the results back into prompts, training data and configuration">
 <defs>
 <marker id="cbA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
@@ -208,6 +250,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <path d="M200,215 L150,215 L150,272 L40,272 L40,130" fill="none" stroke="#42e8c3" stroke-opacity=".65" marker-end="url(#cbE)"/>
 <text x="520" y="292" text-anchor="middle" fill="#42e8c3" font-size="11.5" font-weight="700">results feed back into prompts, training data and model configuration</text>
 </svg>
+</div>
 <figcaption>Two things make this a platform rather than a training script. An LLM writes the question-and-answer pairs, because customers have material and not datasets. And the pipeline does not end at a deployed endpoint — a second LLM generates test cases, fires them at the live API, and the collected responses are analysed for exactly the failures these small models were prone to. Fine-tuning never guaranteed good behaviour, so the loop back into prompts, data and configuration is where reliability was actually won.</figcaption>
 </figure>
 
@@ -219,6 +262,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 </div>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 200" role="img" aria-label="A user turn passes through history retrieval and context assembly before reaching the fine-tuned model, with those two stages marked as the engineering added around the model">
 <defs><marker id="cbB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
 <rect class="dg-box" x="0" y="60" width="110" height="64" rx="12"/>
@@ -242,6 +286,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <text x="355" y="168" text-anchor="middle" fill="#42e8c3" font-size="11.5" font-weight="700">added around the model, not inside it</text>
 <text class="dg-s" x="355" y="186" text-anchor="middle">this is where the reliability came from</text>
 </svg>
+</div>
 <figcaption>The fine-tuned model is one call in the middle of an application, not the application. Because these models held little useful context on their own, history was retrieved and prepared before every request — so the work that made conversations dependable sat in the two stages preceding the model.</figcaption>
 </figure>
 </article>
@@ -254,6 +299,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <p>The recordings were the asset and the problem at once. They are real people talking about the worst period of their lives, so nothing could be trained on until the identities were gone.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 240" role="img" aria-label="Session recordings are transcribed, cleaned and stripped of identifying information before question and answer pairs are generated, which then feed both the fine-tuned model and the retrieval index">
 <defs><marker id="miA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
 <text x="655" y="40" text-anchor="middle" fill="#7c8cff" font-size="11.5" font-weight="700">before anything is trained on it</text>
@@ -284,12 +330,14 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <text class="dg-t" x="610" y="184" text-anchor="middle">Qdrant index</text>
 <text class="dg-s" x="610" y="203" text-anchor="middle">what it can look up</text>
 </svg>
+</div>
 <figcaption>The same prepared material went two ways. Identifying details are transformed out of the transcripts before either path begins, so the model learns from real recovery experience without the people in it being recoverable from the result.</figcaption>
 </figure>
 
 <p>At conversation time the system draws on both of those, which is the part worth being precise about — it was never expected to rely on what the model had memorised.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 260" role="img" aria-label="A user message triggers retrieval from Qdrant, and the fine-tuned Mistral model answers using both the retrieved stories and what fine-tuning taught it">
 <defs><marker id="miB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
 <marker id="miC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7c8cff"/></marker>
@@ -316,6 +364,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <text class="dg-s" x="560" y="250" text-anchor="middle">fine-tuning on the same material</text>
 <text x="672" y="212" fill="#42e8c3" font-size="11.5" font-weight="700">baked into the weights</text>
 </svg>
+</div>
 <figcaption>Two sources of the same domain knowledge, doing different jobs. Fine-tuning shaped how the system talks about recovery; retrieval supplied the specific experience relevant to what someone had just said — so when a user described a problem, the answer could draw on how a real person had handled that situation, rather than on whatever the model happened to remember.</figcaption>
 </figure>
 
@@ -345,6 +394,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <p>Create Agent was the other half of the platform: a visual system for assembling AI applications by dragging, connecting and configuring components — RAG for domain knowledge, conditional routing to direct execution on a condition or a model's output, tools for reaching external services, loops for repeated execution, and LLM components for the reasoning itself. Underneath the canvas it was considerably more complex than it looked, because something had to manage execution across all those connected pieces.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 220" role="img" aria-label="Create Brain produces a custom model which becomes one component inside Create Agent; the diagram marks Create Brain as the speaker's work and Create Agent as a system they worked alongside">
 <defs><marker id="caA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
 <rect x="0" y="46" width="380" height="118" rx="16" fill="rgba(66,232,195,.05)" stroke="#42e8c3" stroke-opacity=".45"/>
@@ -372,6 +422,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <text x="190" y="192" text-anchor="middle" fill="#42e8c3" font-size="12" font-weight="800">what I built</text>
 <text class="dg-s" x="690" y="192" text-anchor="middle">worked alongside it — not my architecture</text>
 </svg>
+</div>
 <figcaption>Create Brain produced the model; Create Agent was the layer that used it. My work at Webtiga sat on the model side — ingestion, dataset generation, fine-tuning, deployment and the application engineering around the model. Create Agent is shown here because it is what consumed that output, not because I designed it.</figcaption>
 </figure>
 
@@ -388,6 +439,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <p>A customer scanned a barcode to unlock the cooler, opened the door, took one or more beverages, and closed it. The amount was deducted from their wallet automatically. The hard part was never spotting a bottle. It was working out what the customer <em>picked up</em>, whether it actually left the cooler, whether it came back, and which SKU was ultimately taken — because getting that wrong means charging someone for a drink they put back.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 190" role="img" aria-label="Two-model pipeline: cameras feed a YOLO detector shared across all deployments, whose crops feed an SKU classifier retrained for each client catalogue">
 <defs><marker id="vgA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
 <rect class="dg-box" x="0" y="46" width="124" height="54" rx="12"/>
@@ -418,6 +470,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <text x="614" y="141" text-anchor="middle" fill="#7c8cff" font-size="11.5" font-weight="700">Retrained per client</text>
 <text class="dg-s" x="614" y="158" text-anchor="middle">catalogues ran from ~7 to ~15 SKUs</text>
 </svg>
+</div>
 <figcaption>Detection and identification were split into two models on purpose. Finding a handheld product generalises across sites, so one detector served every deployment; knowing <em>which</em> drink it is depends entirely on that client's catalogue, so only the classifier was retrained per customer.</figcaption>
 </figure>
 
@@ -430,6 +483,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <p>Detection and classification still aren't enough. A customer can lift a bottle, change their mind, put it back, and take a different one. A system that charges for whatever leaves the frame would bill them for both.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 250" role="img" aria-label="Timeline showing bottle A leaving the cooler and being returned while bottle B leaves and stays out, so only bottle B is charged">
 <defs><marker id="vgB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
 <line x1="100" y1="140" x2="680" y2="140" stroke="rgba(255,255,255,.3)" stroke-dasharray="5 5"/>
@@ -450,6 +504,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <text class="dg-s" x="807" y="132" text-anchor="middle">door closes → charge</text>
 <text x="807" y="156" text-anchor="middle" fill="#42e8c3" font-size="16" font-weight="800">Bottle B only</text>
 </svg>
+</div>
 <figcaption>Centroid tracking followed each detected product against a defined cooler region, so the system reasoned about net position over time rather than momentary presence. A bottle that crosses out and back again is worth nothing; only what is still outside when the door closes gets charged.</figcaption>
 </figure>
 
@@ -457,6 +512,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <p>The real engineering difficulty was raising end-to-end reliability, because every failure looks identical from the outside. A customer is charged the wrong amount — and nothing in that outcome tells you which stage broke.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 232" role="img" aria-label="Four pipeline stages each producing the same observable symptom, a wrong charge, which is why failures had to be attributed per component">
 <defs><marker id="vgC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,139,139,.55)"/></marker></defs>
 <rect class="dg-box" x="0" y="16" width="200" height="50" rx="12"/>
@@ -479,6 +535,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <text x="450" y="185" text-anchor="middle" fill="#ff8b8b" font-size="14" font-weight="800">Observed symptom: the wrong amount is charged</text>
 <text class="dg-s" x="450" y="204" text-anchor="middle">identical for all four causes</text>
 </svg>
+</div>
 <figcaption>Because the symptom is the same whichever stage fails, the fix was diagnostic rather than algorithmic: build extensive test data and label every failure by the component responsible. Once a bad transaction could be attributed to detection, classification, tracking or the in/out decision, each stage could be improved on its own evidence.</figcaption>
 </figure>
 
@@ -486,6 +543,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <p>The same DeepStream pipeline shipped in two configurations, and what differs between them is simply where the video is processed — and therefore what has to cross the network.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 300" role="img" aria-label="Cloud deployment sends video frames across the network to Azure, while the edge deployment processes frames on a Jetson device and sends only the transaction">
 <defs>
 <marker id="vgD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
@@ -515,6 +573,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <path d="M495,100 L495,122 L245,122 L245,200" fill="none" stroke="rgba(124,140,255,.5)" stroke-dasharray="5 4" marker-end="url(#vgE)"/>
 <text x="370" y="114" text-anchor="middle" fill="#7c8cff" font-size="11.5" font-weight="700">model + container updates</text>
 </svg>
+</div>
 <figcaption>Warehouse sites ran the pipeline in Azure; offices and other commercial locations ran it on an NVIDIA Jetson beside the cooler, so frames never left the premises. Azure-based device management pushed updated models and Docker containers out to deployed devices either way.</figcaption>
 </figure>
 
@@ -532,6 +591,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <p>Store managers needed shelf state without a stocktake, so they photographed shelves on their phones and the system worked out what was there and how much of it. A full shelf rarely fits in one frame, so images were stitched before anything downstream could run. The counting itself is where it gets interesting — a photograph is a poor witness to inventory, and it is wrong in two opposite directions at once.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 290" role="img" aria-label="Top-down view of a shelf showing that the camera sees only the front row of products, misses stock stacked behind it, and also captures products belonging to a second shelf further back">
 <defs><marker id="pgA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
 <rect class="dg-box" x="18" y="134" width="38" height="32" rx="7"/>
@@ -553,12 +613,14 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <circle cx="706" cy="186" r="9" fill="none" stroke="#ff8b8b"/>
 <text class="dg-s" x="724" y="190">another shelf, still in frame</text>
 </svg>
+</div>
 <figcaption>Seen from above, both counting errors are the same geometry. Products stacked behind the front row are real stock that never reaches the sensor, while products on a shelf further back are not stock at all but appear in the picture regardless. Counting what is visible over-reports one and under-reports the other.</figcaption>
 </figure>
 
 <p>So the pipeline corrects the raw detection count twice, in opposite directions, using two different models.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 200" role="img" aria-label="Pipeline where U-Net segmentation removes products belonging to the shelf behind and DPT depth recovers units stacked out of sight, correcting the count in both directions">
 <defs><marker id="pgB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
 <rect class="dg-box" x="0" y="60" width="124" height="58" rx="12"/>
@@ -589,6 +651,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <text x="680" y="160" text-anchor="middle" fill="#42e8c3" font-size="11.5" font-weight="700">recovers stacked units</text>
 <text class="dg-s" x="680" y="178" text-anchor="middle">stops under-counting</text>
 </svg>
+</div>
 <figcaption>Segmentation and depth solve opposite halves of the same problem. U-Net removes what does not belong to the shelf being measured; DPT was explored to estimate products arranged in stacks, so the count reflects units present rather than units facing the camera.</figcaption>
 </figure>
 
@@ -622,6 +685,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <p>The part worth showing is how two people were handled on one camera. Rather than running a single pose pipeline across the whole frame, the frame was divided into equal regions and each region processed independently.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 300" role="img" aria-label="One camera frame divided into two equal regions, each cropped and processed by its own independent pose pipeline in parallel, with the pattern extending to N regions">
 <defs><marker id="puA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
 <text class="dg-s" x="0" y="40">one camera frame</text>
@@ -662,6 +726,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <rect x="310" y="248" width="590" height="42" rx="12" fill="none" stroke="rgba(255,255,255,.16)" stroke-dasharray="6 5"/>
 <text class="dg-s" x="605" y="274" text-anchor="middle">same pattern, N regions — bounded by camera coverage and compute, not by the design</text>
 </svg>
+</div>
 <figcaption>Splitting the frame rather than the model means each person gets a clean, isolated pose estimate, and the pipelines run independently in parallel. Two was what the contract needed; nothing in the architecture stops it being more, which is the reason to build it this way rather than special-casing two people.</figcaption>
 </figure>
 
@@ -678,6 +743,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <p>A contract for a manufacturer supplying brake pads to the electronics and electrical industry. The task was inspecting manufactured pads for defects and dimensional problems: overall pad geometry, how many holes there were, the diameter of each, and whether they sat in the right positions.</p>
 
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 270" role="img" aria-label="A brake pad whose inspection questions split into two kinds: geometric measurements answered by classical image processing, and pattern judgements explored with learned models">
 <defs><marker id="bpA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
 <marker id="bpB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker>
@@ -703,6 +769,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <text class="dg-s" x="500" y="222">custom CNN, explored</text>
 <text x="500" y="240" fill="#7c8cff" font-size="11.5" font-weight="700">does this pattern look wrong</text>
 </svg>
+</div>
 <figcaption>Inspection asked two kinds of question of the same part. Counting holes and measuring a diameter or a position have exact answers, and classical image processing gives them directly — so those were solved with contours, custom edge detection and template matching. Judging whether a surface looks defective has no measurement to take, which is where custom CNN approaches were explored instead.</figcaption>
 </figure>
 
@@ -721,6 +788,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <div class="case-top"><div><div class="sub">Retail Footfall & Customer Behavior Analytics</div><h3>Turning CCTV into structured retail data</h3></div><div class="meta">YOLO · Tracking · ResNet · Heatmaps</div></div>
 <p>The business objective was to transform existing CCTV infrastructure in retail stores into useful data for stakeholders: how many people enter and leave, which doors they use, visitor gender distribution, and where customers spend time inside the store.</p>
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 262" role="img" aria-label="One CCTV view carries several virtual door lines; detection and tracking run once and the resulting tracks feed footfall counts, gender split and heatmaps">
 <defs>
 <marker id="mmA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
@@ -755,6 +823,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <text class="dg-t" x="730" y="212" text-anchor="middle">Heatmaps + dwell</text>
 <text class="dg-s" x="730" y="230" text-anchor="middle">where the same centroids linger, and how long</text>
 </svg>
+</div>
 <figcaption>Detection and tracking run once; everything else is a different question asked of the same tracks. Virtual lines are drawn per entry region rather than per camera, which is why one view can count several doors independently — the direction a track crosses a line is what makes it an entry or an exit.</figcaption>
 </figure>
 <div class="cols">
@@ -769,6 +838,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <div class="case-top"><div><div class="sub">BigBasket · Return-to-Vendor</div><h3>Automated barcode verification on a conveyor</h3></div><div class="meta">Computer Vision · Image Processing · State Machine · Tracking</div></div>
 <p>A real-time warehouse system for identifying returned products. Returned items were placed onto a conveyor, brought in front of a camera, scanned, and verified against the barcode/product dataset supplied by BigBasket.</p>
 <figure>
+<div class="dg-pan">
 <svg viewBox="0 0 900 300" role="img" aria-label="A read failure sends the belt backwards to present the item again, and a second failure stops the belt to hold it in view, so the vision result drives the conveyor motor">
 <defs>
 <marker id="cvA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
@@ -799,6 +869,7 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 <path d="M500,178 L500,266 L305,266 L305,184" fill="none" stroke="#7c8cff" stroke-opacity=".7" marker-end="url(#cvC)"/>
 <text x="402" y="284" text-anchor="middle" fill="#7c8cff" font-size="11.5" font-weight="700">still failing — belt stops and holds it in view</text>
 </svg>
+</div>
 <figcaption>The loops are the point: a failed read doesn't raise an exception, it drives the motor. The first failure reverses the belt to re-present the item, and a second stops it entirely to hold the item in front of the camera — so the vision result is a control signal for physical hardware, not just a database lookup.</figcaption>
 </figure>
 <div class="cols">
@@ -850,6 +921,61 @@ footer{padding:30px 0;color:#697382;font-size:12px;border-top:1px solid var(--li
 
 <footer class="container"><span>© <span id="year"></span> Tunesh Verma</span><span>AI systems · from perception to conversation</span></footer>
 <script>document.getElementById("year").textContent=new Date().getFullYear();</script>
+<script>
+/* Diagrams pan sideways on narrow screens. Two jobs here, both cosmetic — the
+   panning itself is CSS and works with this script absent.
+
+   Drop the right-edge fade once a diagram is scrolled to its end, so the fade
+   always means "there is more", never decoration. And label the first diagram
+   with the gesture, removing it everywhere the moment anyone uses it: the hint
+   is only worth its space until it has been read once. */
+(function () {
+  "use strict";
+  var pans = Array.prototype.slice.call(document.querySelectorAll(".dg-pan"));
+  if (!pans.length) return;
+
+  function syncEnd(pan) {
+    // A fractional pixel of slack: scrollWidth and clientWidth rarely land
+    // exactly equal at the end of a scroll.
+    pan.dataset.end = String(pan.scrollLeft + pan.clientWidth >= pan.scrollWidth - 2);
+  }
+
+  var first = pans[0].closest("figure");
+  if (first) {
+    var hint = document.createElement("span");
+    hint.className = "dg-hint";
+    hint.setAttribute("aria-hidden", "true");
+    hint.textContent = "Swipe \u2192";
+    first.appendChild(hint);
+  }
+
+  function retireHint() {
+    if (first) first.dataset.hint = "used";
+  }
+
+  function sync(pan) {
+    syncEnd(pan);
+    // Safari does not make an overflowing scroll region focusable on its own,
+    // so a keyboard user cannot reach the part of the diagram that is off
+    // screen. Only while it actually overflows, so a desktop reader does not
+    // collect eighteen tab stops that go nowhere.
+    if (pan.scrollWidth > pan.clientWidth + 2) pan.setAttribute("tabindex", "0");
+    else pan.removeAttribute("tabindex");
+  }
+
+  pans.forEach(function (pan) {
+    sync(pan);
+    pan.addEventListener("scroll", function () {
+      syncEnd(pan);
+      retireHint();
+    }, { passive: true });
+  });
+
+  window.addEventListener("resize", function () {
+    pans.forEach(sync);
+  }, { passive: true });
+})();
+</script>
 <script src="voice/agent.js" data-token-endpoint="https://portfolio-token.tunesh-verma.workers.dev"></script>
 </body>
 </html>
