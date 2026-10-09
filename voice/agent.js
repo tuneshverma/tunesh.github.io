@@ -85,6 +85,11 @@
   var slowTimer = null;
   var waitTimer = null;
   var lastWarm = 0;
+  // The launcher repaints a canvas every frame. During a scroll that is a
+  // texture upload per frame competing with the scroll itself, for an
+  // animation nobody is looking at. Pause it until the thumb stops.
+  var scrolling = false;
+  var scrollIdle = null;
 
   /* ---------------------------------------------------------------- markup */
 
@@ -126,9 +131,11 @@
 
   /* ------------------------------------------------------------- rendering */
 
+  var MAX_DPR = 2;
+
   function sizeCanvas() {
     var rect = canvas.getBoundingClientRect();
-    var dpr = window.devicePixelRatio || 1;
+    var dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
     canvas.width = Math.max(1, Math.round(rect.width * dpr));
     canvas.height = Math.max(1, Math.round(rect.height * dpr));
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -989,7 +996,7 @@
   function sizeMini() {
     var rect = miniCanvas.getBoundingClientRect();
     if (!rect.width) return 0;
-    var dpr = window.devicePixelRatio || 1;
+    var dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
     miniCanvas.width = Math.round(rect.width * dpr);
     miniCanvas.height = Math.round(rect.height * dpr);
     miniCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -997,8 +1004,16 @@
     return miniSize;
   }
 
+  // The blobs drift slowly enough that half the frames are indistinguishable,
+  // and each one skipped is a canvas the compositor does not have to re-upload.
+  var MINI_INTERVAL = 1000 / 30;
+  var lastMiniAt = 0;
+
   function miniFrame(now) {
     requestAnimationFrame(miniFrame);
+    if (scrolling) return;
+    if (now - lastMiniAt < MINI_INTERVAL) return;
+    lastMiniAt = now;
     if (!miniSize && !sizeMini()) return;
     // Hidden, or behind the call panel: nothing worth painting.
     if (document.body.classList.contains("va-open")) return;
@@ -1045,13 +1060,33 @@
   var travelState = null;
   var travelTimer = null;
   var queued = false;
+  var lastTransform = "";
+  // The button's own measurements only change when the window does, but
+  // reading them inside the scroll handler forced a layout on every frame.
+  var metrics = null;
+
+  function measureFab() {
+    var w = fab.offsetWidth;
+    var h = fab.offsetHeight;
+    if (!w || !h) return null;
+    var orbW = orbWrap.offsetWidth || 1;
+    metrics = {
+      w: w,
+      h: h,
+      dockScale: DOCK_DIAMETER / orbW,
+      ocx: orbWrap.offsetLeft + orbW / 2,
+      ocy: orbWrap.offsetTop + orbWrap.offsetHeight / 2,
+    };
+    return metrics;
+  }
 
   function placeFab() {
     var vw = window.innerWidth;
     var vh = window.innerHeight;
-    var w = fab.offsetWidth;
-    var h = fab.offsetHeight;
-    if (!w || !h) return;
+    var m = metrics || measureFab();
+    if (!m) return;
+    var w = m.w;
+    var h = m.h;
 
     var r = null;
     var next;
@@ -1068,8 +1103,7 @@
       else next = "anchored";
     }
 
-    var orbW = orbWrap.offsetWidth || 1;
-    var dockScale = DOCK_DIAMETER / orbW;
+    var dockScale = m.dockScale;
     var x;
     var y;
 
@@ -1077,12 +1111,10 @@
       // Position the circle, not the whole button: the label is invisible when
       // docked, and measuring the box would leave its empty space between the
       // circle and the corner.
-      var m = vw < 560 ? 18 : 24;
-      var ocx = orbWrap.offsetLeft + orbW / 2;
-      var ocy = orbWrap.offsetTop + orbWrap.offsetHeight / 2;
+      var gap = vw < 560 ? 18 : 24;
       // Rendered orb centre = buttonCentre + (orbCentre - buttonCentre) * scale
-      x = vw - m - DOCK_DIAMETER / 2 - w / 2 - (ocx - w / 2) * dockScale;
-      y = vh - m - DOCK_DIAMETER / 2 - h / 2 - (ocy - h / 2) * dockScale;
+      x = vw - gap - DOCK_DIAMETER / 2 - w / 2 - (m.ocx - w / 2) * dockScale;
+      y = vh - gap - DOCK_DIAMETER / 2 - h / 2 - (m.ocy - h / 2) * dockScale;
     } else {
       x = r.left + r.width / 2 - w / 2;
       y = r.top + r.height / 2 - h / 2;
@@ -1109,13 +1141,39 @@
       }
     }
 
-    fab.style.transform =
+    // Docked, the corner position depends on the viewport and not on the
+    // scroll, so this is the same string every frame. Writing it anyway
+    // invalidated layout and made the next frame's read synchronous.
+    var t =
       "translate(" + Math.round(x) + "px," + Math.round(y) + "px) scale(" +
       (next === "docked" ? dockScale.toFixed(4) : 1) + ")";
+    if (t !== lastTransform) {
+      lastTransform = t;
+      fab.style.transform = t;
+    }
+  }
+
+  /* Once the slot is well off screen the button is simply docked, and where
+     it sits depends on the viewport rather than the scroll. On a page this
+     long that is most of the scroll, so stop tracking it: no rAF, no read,
+     no work at all until the slot comes back within reach. */
+  var nearSlot = true;
+
+  if (anchor && typeof IntersectionObserver === "function") {
+    new IntersectionObserver(
+      function (entries) {
+        var entry = entries[entries.length - 1];
+        nearSlot = entry.isIntersecting;
+        // Settle the state on the way past, so leaving the zone leaves the
+        // button in the right place rather than wherever it last was.
+        placeFab();
+      },
+      { rootMargin: "150% 0px 150% 0px" },
+    ).observe(anchor);
   }
 
   function scheduleFab() {
-    if (queued) return;
+    if (!nearSlot || queued) return;
     queued = true;
     requestAnimationFrame(function () {
       queued = false;
@@ -1124,7 +1182,24 @@
   }
 
   window.addEventListener("scroll", scheduleFab, { passive: true });
-  window.addEventListener("resize", scheduleFab);
+  window.addEventListener(
+    "scroll",
+    function () {
+      scrolling = true;
+      clearTimeout(scrollIdle);
+      scrollIdle = setTimeout(function () {
+        scrolling = false;
+      }, 140);
+    },
+    { passive: true },
+  );
+  window.addEventListener("resize", function () {
+    // Everything cached above is viewport-dependent, and the docked corner
+    // moves with the viewport whether or not the slot is in reach.
+    metrics = null;
+    miniSize = 0;
+    placeFab();
+  });
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(scheduleFab);
   }
