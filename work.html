@@ -24,44 +24,65 @@ figure{position:relative;margin:26px 0;padding:24px 22px 18px;border:1px solid v
 ::selection{background:rgba(66,232,195,.26);color:var(--text)}
 figure svg{display:block;width:100%;height:auto;color:var(--text);overflow:visible}
 figcaption{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);font-size:13px;color:var(--muted);max-width:74ch}
-.dg-box{fill:rgba(255,255,255,.035);stroke:rgba(255,255,255,.16)}
-.dg-t{fill:currentColor;font-family:inherit;font-size:13px;font-weight:700}
+/* Diagram vocabulary. The boxes and edges were drawn faint enough that the
+   structure of a diagram disappeared before its labels did; these are the
+   same shapes at a weight you can actually follow across a figure. */
+.dg-box{fill:rgba(255,255,255,.05);stroke:rgba(255,255,255,.3);stroke-width:1.25}
+.dg-t{fill:currentColor;font-family:inherit;font-size:13px;font-weight:700;letter-spacing:-.01em}
 .dg-s{fill:#929cab;font-family:inherit;font-size:12.5px;font-weight:600}
-.dg-e{stroke:rgba(255,255,255,.28);fill:none}
-.dg-hint{display:none}
-/* Every diagram is drawn on a 900-unit canvas. Inside a phone-width card that
-   renders its 13px labels at under four CSS pixels, which is not small text,
-   it is no text at all. Shrinking the canvas is not an option — the boxes are
-   positioned, so the type cannot grow without colliding with them.
-   So on a narrow screen the diagram holds a width its labels survive and the
-   figure pans sideways instead. A swipe is a real cost; being unable to read any of
-   it was a bigger one.
-
-   The cutoff is the page's own 800px breakpoint, which is also about where
-   the canvas stops being crushed: a landscape phone at 844 already fits the
-   whole thing at 10px and is left alone, a tablet in portrait at 768 would
-   otherwise sit at 8.9px and is not. */
+.dg-e{stroke:rgba(255,255,255,.42);fill:none;stroke-width:1.25;stroke-linecap:round}
+/* Labels sitting on a connector knock it out rather than printing over it. */
+figure svg text{paint-order:stroke;stroke:#0b0e14;stroke-width:3.5px;stroke-linejoin:round}
+/* Every diagram is drawn on a 900-unit canvas, which is a shape a phone does
+   not have. Panning one sideways was legible, but nobody swipes, so below
+   800px the wide drawing is swapped for a second one redrawn on a 360-unit
+   canvas that reads straight down the screen. Same nodes, same words, same
+   colour meanings; only the axis changes. */
+.dg-flow,.dg-tall{display:none}
+.dg-node{border:1.25px solid rgba(255,255,255,.3);background:rgba(255,255,255,.05);border-radius:12px;padding:11px 14px;text-align:center}
+.dg-node b{display:block;font-size:14px;font-weight:700;letter-spacing:-.01em;color:var(--text)}
+.dg-node span{display:block;margin-top:2px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.dg-node.on{background:rgba(66,232,195,.08);border-color:rgba(66,232,195,.5)}
+.dg-node.alt{background:rgba(124,140,255,.08);border-color:rgba(124,140,255,.5)}
+.dg-node.ghost{background:none;border-style:dashed;border-color:rgba(255,255,255,.26)}
+/* The drawings use a third colour for a failure or a subtraction. Folding it
+   into violet would say "second track" where the drawing says "this is what
+   goes wrong". */
+.dg-node.warn{background:rgba(255,139,139,.07);border-color:rgba(255,139,139,.45)}
+.dg-link{display:block;margin:0 auto;width:14px;height:22px;color:rgba(255,255,255,.62)}
+.dg-link.up{transform:rotate(180deg)}
+.dg-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* A label the wide drawing prints on a container, kept as the heading of the
+   group it introduces. */
+.dg-cap{margin:18px 0 8px;font-size:12.5px;font-weight:800;letter-spacing:-.01em;color:var(--muted)}
+.dg-cap.teal{color:var(--accent2)}.dg-cap.violet{color:var(--accent)}.dg-cap.warn{color:#ff8b8b}
+/* A label the wide drawing prints on an arrow, kept with its connector. */
+.dg-edge{margin:9px 0 0;text-align:center;font-size:11.5px;font-weight:600;color:var(--muted)}
+.dg-edge + .dg-link{margin-top:1px}
+/* Marks the break between two tracks, where the wide drawing uses a dashed
+   divider. Wordless on purpose: a stacked layout needs the separation, not a
+   new heading the wide version never had. */
+.dg-split{height:0;border-top:1px dashed rgba(255,255,255,.26);margin:20px 0}
+.dg-split.teal{border-top-color:rgba(66,232,195,.45)}
+.dg-split.violet{border-top-color:rgba(124,140,255,.45)}
+.dg-split.warn{border-top-color:rgba(255,139,139,.45)}
+.dg-aside{margin:14px 0 0;padding-left:13px;border-left:2px solid var(--accent2);font-size:13px;line-height:1.5;color:#cbd2dd}
+.dg-aside.violet{border-left-color:var(--accent)}
+.dg-aside.warn{border-left-color:#ff8b8b}
+.dg-aside b{display:block;font-weight:700;color:var(--accent2)}
+.dg-aside.violet b{color:var(--accent)}
+.dg-aside.warn b{color:#ff8b8b}
+/* Every diagram is drawn on a 900-unit canvas, which is a shape a phone does
+   not have. Panning one sideways was legible, but nobody swipes, so below
+   800px the wide drawing is swapped for the same nodes stacked down the
+   screen. A few diagrams are pictures of a physical arrangement rather than a
+   flow — those keep a drawing, redrawn narrow, because stacking them would
+   destroy what they show. */
 @media(max-width:800px){
-  figure{padding:20px 0 16px}
-  figcaption{margin:0 20px;padding-top:14px}
-  .dg-pan{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
-    scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent;
-    padding:0 20px 2px;
-    /* Fades the right edge while there is more diagram out there, and is
-       dropped by script the moment you reach the end of one. */
-    -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 44px),transparent);
-    mask-image:linear-gradient(90deg,#000 calc(100% - 44px),transparent)}
-  .dg-pan[data-end="true"]{-webkit-mask-image:none;mask-image:none}
-  /* 800 is where 13px labels land back around 11.5px, which is the smallest
-     this page asks anyone to read elsewhere. */
-  .dg-pan svg{min-width:800px}
-  /* Shown on the first diagram only, and only until the gesture is used. */
-  .dg-hint{display:block;position:absolute;top:10px;right:14px;
-    font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--accent2);
-    background:rgba(13,17,24,.92);border:1px solid rgba(66,232,195,.3);
-    border-radius:999px;padding:3px 10px;pointer-events:none;
-    transition:opacity .3s ease}
-  figure[data-hint="used"] .dg-hint{opacity:0}
+  figure{padding:20px 18px 16px}
+  .dg-pan{display:none}
+  .dg-flow{display:block}
+  .dg-tall{display:block;width:100%;height:auto}
 }
 footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between}
 @media(max-width:980px){.section-head{grid-template-columns:1fr;gap:10px}}
@@ -77,6 +98,9 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <body>
 <nav><div class="container nav"><a class="brand" href="index.html">TV<span>.</span></a><div class="navlinks"><a href="index.html">Home</a><a href="#praxispro">PraxisPro</a><a href="#webtiga">Webtiga</a><a href="#vision">Vision</a><a href="#freelance">Freelance</a><a href="#mintm">MintM</a><a href="#synergy">Synergy Labs</a><a href="#blood">Early Projects</a></div></div></nav>
 
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+<symbol id="dg-down" viewBox="0 0 14 22"><path d="M7 1 V16 M1.5 11 L7 17 L12.5 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
 <main>
 <header class="hero container">
 <div class="eyebrow">Selected Work / Detailed Case Studies</div>
@@ -101,7 +125,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <figure>
 <div class="dg-pan">
 <svg viewBox="0 0 900 236" role="img" aria-label="A session runs from configuring the clinician persona, through a roleplay of about seven minutes where the AI asks what real clinicians ask, into a closure the rep must handle, and finally a report scored across categories">
-<defs><marker id="ppA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
+<defs><marker id="ppA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker>
 <marker id="ppB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker>
 <marker id="ppC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker></defs>
 <rect class="dg-box" x="0" y="60" width="190" height="64" rx="12"/>
@@ -125,6 +149,16 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text class="dg-s" x="340" y="210" text-anchor="middle">the rep has to hold their side of a conversation, not recite a pitch</text>
 </svg>
 </div>
+<div class="dg-flow">
+<div class="dg-node"><b>Configure the clinician</b><span>type &#183; strictness &#183; scepticism</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node on"><b>Roleplay, live</b><span>about seven minutes</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Closing the call</b><span>part of the exercise</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Report</b><span>scored across categories</span></div>
+<p class="dg-aside"><b>it asks what real clinicians ask &#8212; and answers a good question back</b>the rep has to hold their side of a conversation, not recite a pitch</p>
+</div>
 <figcaption>The clinician is not a quiz. It raises the objections a rep actually meets, and when the rep asks something relevant it answers — so the session behaves like a conversation with its own direction. Closing matters too: the rep has to end the call properly rather than simply running out of things to say, and that final stretch is assessed along with the rest.</figcaption>
 </figure>
 
@@ -144,7 +178,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <figure>
 <div class="dg-pan">
 <svg viewBox="0 0 900 300" role="img" aria-label="PraxisPlay and PraxisCertify both analyse the rep's own responses through a shared reporting engine, while PraxisCoach analyses a manager's recorded judgement through a separate one">
-<defs><marker id="pcA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
+<defs><marker id="pcA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker>
 <marker id="pcB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7c8cff"/></marker></defs>
 <rect class="dg-box" x="0" y="26" width="280" height="60" rx="12"/>
 <text class="dg-t" x="18" y="51">PraxisPlay</text>
@@ -175,6 +209,22 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <line x1="0" y1="186" x2="900" y2="186" stroke="rgba(255,255,255,.12)" stroke-dasharray="5 5"/>
 </svg>
 </div>
+<div class="dg-flow">
+<div class="dg-row">
+<div class="dg-node"><b>PraxisPlay</b><span>a live roleplay &#8212; the rep speaks</span></div>
+<div class="dg-node"><b>PraxisCertify</b><span>set questions &#8212; the rep answers</span></div>
+</div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Shared reporting</b><span>scores the rep's own words</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>How the rep performed</b><span>across categories, from their session</span></div>
+<div class="dg-split violet"></div>
+<div class="dg-node alt"><b>PraxisCoach</b><span>set questions &#8212; the manager answers</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node alt"><b>A separate engine</b><span>a judgement, not a transcript</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node alt"><b>A manager's assessment</b><span>taken away and filed in their systems</span></div>
+</div>
 <figcaption>Play and Certify both read the rep's own words — one from open conversation, one against a fixed set of questions — so they share a reporting engine. Coach sits below the line because its input is not a performance at all: the manager answers the questions, recording how they judged the session. Analysing someone's judgement is a different problem from analysing someone's performance, so it needed its own analysis rather than a variation of the first.</figcaption>
 </figure>
 </article>
@@ -187,7 +237,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <figure>
 <div class="dg-pan">
 <svg viewBox="0 0 900 180" role="img" aria-label="Client product documents are processed by an internal platform into a per-client knowledge base, which grounds the clinician in the roleplay">
-<defs><marker id="kgA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<defs><marker id="kgA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker></defs>
 <rect class="dg-box" x="0" y="44" width="190" height="64" rx="12"/>
 <text class="dg-t" x="95" y="70" text-anchor="middle">Client documents</text>
 <text class="dg-s" x="95" y="90" text-anchor="middle">their own product material</text>
@@ -205,6 +255,16 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <line class="dg-e" x1="690" y1="76" x2="734" y2="76" marker-end="url(#kgA)"/>
 <text class="dg-s" x="450" y="142" text-anchor="middle">roughly 150,000 question-and-answer pairs per client knowledge base</text>
 </svg>
+</div>
+<div class="dg-flow">
+<div class="dg-node"><b>Client documents</b><span>their own product material</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Processing platform</b><span>built in-house</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Knowledge base</b><span>one per client</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node on"><b>The clinician</b><span>grounded in it</span></div>
+<p class="dg-aside">roughly 150,000 question-and-answer pairs per client knowledge base</p>
 </div>
 <figcaption>The pipeline is the reason the product generalises. Onboarding a new client is a matter of processing their documentation rather than rebuilding the roleplay, which is also what makes the persona library — in the hundreds across clients — worth having.</figcaption>
 </figure>
@@ -225,7 +285,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <div class="dg-pan">
 <svg viewBox="0 0 900 310" role="img" aria-label="Customer data becomes a deployed model, and a second loop generates test cases with an LLM, calls the deployed API, analyses the responses and feeds the results back into prompts, training data and configuration">
 <defs>
-<marker id="cbA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
+<marker id="cbA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker>
 <marker id="cbE" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker>
 </defs>
 <rect class="dg-box" x="0" y="60" width="130" height="64" rx="12"/>
@@ -264,6 +324,26 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text x="520" y="292" text-anchor="middle" fill="#42e8c3" font-size="11.5" font-weight="700">results feed back into prompts, training data and model configuration</text>
 </svg>
 </div>
+<div class="dg-flow">
+<div class="dg-node"><b>Domain data</b><span>PDF &#183; audio &#183; video</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Text extraction</b><span>audio lifted from video</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node alt"><b>Q&amp;A generation</b><span>an LLM writes the dataset</span></div>
+<p class="dg-aside violet"><b>the training set is generated, not supplied</b></p>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>SageMaker</b><span>train &#183; register &#183; deploy</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Deployed brain</b></div>
+<div class="dg-split teal"></div>
+<div class="dg-node on"><b>Generate test cases</b><span>another LLM writes them</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node on"><b>Call the live API</b><span>every case, automatically</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node on"><b>Analyse responses</b><span>hallucination &#183; drift</span></div>
+<svg class="dg-link up" aria-hidden="true"><use href="#dg-down"/></svg>
+<p class="dg-aside"><b>results feed back into prompts, training data and model configuration</b></p>
+</div>
 <figcaption>Two things make this a platform rather than a training script. An LLM writes the question-and-answer pairs, because customers have material and not datasets. And the pipeline does not end at a deployed endpoint — a second LLM generates test cases, fires them at the live API, and the collected responses are analysed for exactly the failures these small models were prone to. Fine-tuning never guaranteed good behaviour, so the loop back into prompts, data and configuration is where reliability was actually won.</figcaption>
 </figure>
 
@@ -277,7 +357,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <figure>
 <div class="dg-pan">
 <svg viewBox="0 0 900 200" role="img" aria-label="A user turn passes through history retrieval and context assembly before reaching the fine-tuned model, with those two stages marked as the engineering added around the model">
-<defs><marker id="cbB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<defs><marker id="cbB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker></defs>
 <rect class="dg-box" x="0" y="60" width="110" height="64" rx="12"/>
 <text class="dg-t" x="55" y="97" text-anchor="middle">User turn</text>
 <rect class="dg-box" x="150" y="60" width="180" height="64" rx="12"/>
@@ -300,6 +380,18 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text class="dg-s" x="355" y="186" text-anchor="middle">this is where the reliability came from</text>
 </svg>
 </div>
+<div class="dg-flow">
+<div class="dg-node"><b>User turn</b></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Retrieve history</b><span>a call before the LLM call</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Assemble context</b><span>prompt + guardrails</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Fine-tuned model</b><span>Mistral / Llama 3</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Reply</b></div>
+<p class="dg-aside"><b>added around the model, not inside it</b>this is where the reliability came from</p>
+</div>
 <figcaption>The fine-tuned model is one call in the middle of an application, not the application. Because these models held little useful context on their own, history was retrieved and prepared before every request — so the work that made conversations dependable sat in the two stages preceding the model.</figcaption>
 </figure>
 </article>
@@ -314,7 +406,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <figure>
 <div class="dg-pan">
 <svg viewBox="0 0 900 240" role="img" aria-label="Session recordings are transcribed, cleaned and stripped of identifying information before question and answer pairs are generated, which then feed both the fine-tuned model and the retrieval index">
-<defs><marker id="miA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<defs><marker id="miA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker></defs>
 <text x="655" y="40" text-anchor="middle" fill="#7c8cff" font-size="11.5" font-weight="700">before anything is trained on it</text>
 <rect class="dg-box" x="0" y="60" width="150" height="64" rx="12"/>
 <text class="dg-t" x="75" y="86" text-anchor="middle">Recordings</text>
@@ -344,6 +436,23 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text class="dg-s" x="610" y="203" text-anchor="middle">what it can look up</text>
 </svg>
 </div>
+<div class="dg-flow">
+<div class="dg-node"><b>Recordings</b><span>thousands of sessions</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Speech to text</b></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Clean transcripts</b><span>quality pass</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node alt"><b>Remove identities</b><span>named entities transformed</span></div>
+<p class="dg-aside violet"><b>before anything is trained on it</b></p>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Q&amp;A pairs</b></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-row">
+<div class="dg-node"><b>Fine-tune Mistral</b><span>how it should talk</span></div>
+<div class="dg-node"><b>Qdrant index</b><span>what it can look up</span></div>
+</div>
+</div>
 <figcaption>The same prepared material went two ways. Identifying details are transformed out of the transcripts before either path begins, so the model learns from real recovery experience without the people in it being recoverable from the result.</figcaption>
 </figure>
 
@@ -352,7 +461,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <figure>
 <div class="dg-pan">
 <svg viewBox="0 0 900 260" role="img" aria-label="A user message triggers retrieval from Qdrant, and the fine-tuned Mistral model answers using both the retrieved stories and what fine-tuning taught it">
-<defs><marker id="miB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
+<defs><marker id="miB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker>
 <marker id="miC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7c8cff"/></marker>
 <marker id="miD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker></defs>
 <rect x="200" y="26" width="200" height="48" rx="12" fill="rgba(124,140,255,.08)" stroke="#7c8cff" stroke-opacity=".45"/>
@@ -377,6 +486,17 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text class="dg-s" x="560" y="250" text-anchor="middle">fine-tuning on the same material</text>
 <text x="672" y="212" fill="#42e8c3" font-size="11.5" font-weight="700">baked into the weights</text>
 </svg>
+</div>
+<div class="dg-flow">
+<div class="dg-node"><b>User message</b></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Retrieve from Qdrant</b><span>stories matching the situation</span></div>
+<p class="dg-aside violet"><b>looked up per message</b>indexed recovery stories</p>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Fine-tuned Mistral</b><span>with the retrieved context</span></div>
+<p class="dg-aside"><b>baked into the weights</b>fine-tuning on the same material</p>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Response</b></div>
 </div>
 <figcaption>Two sources of the same domain knowledge, doing different jobs. Fine-tuning shaped how the system talks about recovery; retrieval supplied the specific experience relevant to what someone had just said — so when a user described a problem, the answer could draw on how a real person had handled that situation, rather than on whatever the model happened to remember.</figcaption>
 </figure>
@@ -409,7 +529,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <figure>
 <div class="dg-pan">
 <svg viewBox="0 0 900 220" role="img" aria-label="Create Brain produces a custom model which becomes one component inside Create Agent; the diagram marks Create Brain as the speaker's work and Create Agent as a system they worked alongside">
-<defs><marker id="caA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<defs><marker id="caA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker></defs>
 <rect x="0" y="46" width="380" height="118" rx="16" fill="rgba(66,232,195,.05)" stroke="#42e8c3" stroke-opacity=".45"/>
 <text x="20" y="74" fill="#42e8c3" font-size="13" font-weight="800">Create Brain</text>
 <rect class="dg-box" x="20" y="92" width="100" height="48" rx="10"/>
@@ -436,6 +556,25 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text class="dg-s" x="690" y="192" text-anchor="middle">worked alongside it — not my architecture</text>
 </svg>
 </div>
+<div class="dg-flow">
+<p class="dg-cap teal">Create Brain</p>
+<div class="dg-node"><b>domain data</b></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>fine-tune</b></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>custom model</b></div>
+<p class="dg-aside"><b>what I built</b></p>
+<p class="dg-edge">as one component</p>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<p class="dg-cap">Create Agent</p>
+<div class="dg-row">
+<div class="dg-node ghost"><b>RAG</b></div>
+<div class="dg-node ghost"><b>tools</b></div>
+<div class="dg-node ghost"><b>logic</b></div>
+<div class="dg-node ghost"><b>loops</b></div>
+</div>
+<p class="dg-aside violet">worked alongside it &#8212; not my architecture</p>
+</div>
 <figcaption>Create Brain produced the model; Create Agent was the layer that used it. My work at Webtiga sat on the model side — ingestion, dataset generation, fine-tuning, deployment and the application engineering around the model. Create Agent is shown here because it is what consumed that output, not because I designed it.</figcaption>
 </figure>
 
@@ -454,7 +593,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <figure>
 <div class="dg-pan">
 <svg viewBox="0 0 900 190" role="img" aria-label="Two-model pipeline: cameras feed a YOLO detector shared across all deployments, whose crops feed an SKU classifier retrained for each client catalogue">
-<defs><marker id="vgA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<defs><marker id="vgA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker></defs>
 <rect class="dg-box" x="0" y="46" width="124" height="54" rx="12"/>
 <text class="dg-t" x="62" y="70" text-anchor="middle">Two cameras</text>
 <text class="dg-s" x="62" y="87" text-anchor="middle">inside the cooler</text>
@@ -484,6 +623,23 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text class="dg-s" x="614" y="158" text-anchor="middle">catalogues ran from ~7 to ~15 SKUs</text>
 </svg>
 </div>
+<div class="dg-flow">
+<div class="dg-node"><b>Two cameras</b><span>inside the cooler</span></div>
+<p class="dg-edge">frames</p>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node on"><b>Product detection</b><span>custom YOLO</span></div>
+<p class="dg-aside"><b>Shared across deployments</b>one detector generalises</p>
+<p class="dg-edge">boxes</p>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Crop</b></div>
+<p class="dg-edge">crop</p>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node alt"><b>SKU classification</b><span>which drink is it</span></div>
+<p class="dg-aside violet"><b>Retrained per client</b>catalogues ran from ~7 to ~15 SKUs</p>
+<p class="dg-edge">SKU</p>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Product identity</b></div>
+</div>
 <figcaption>Detection and identification were split into two models on purpose. Finding a handheld product generalises across sites, so one detector served every deployment; knowing <em>which</em> drink it is depends entirely on that client's catalogue, so only the classifier was retrained per customer.</figcaption>
 </figure>
 
@@ -498,7 +654,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <figure>
 <div class="dg-pan">
 <svg viewBox="0 0 900 250" role="img" aria-label="Timeline showing bottle A leaving the cooler and being returned while bottle B leaves and stays out, so only bottle B is charged">
-<defs><marker id="vgB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<defs><marker id="vgB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker></defs>
 <line x1="100" y1="140" x2="680" y2="140" stroke="rgba(255,255,255,.3)" stroke-dasharray="5 5"/>
 <text class="dg-s" x="100" y="131">cooler boundary</text>
 <text class="dg-s" x="110" y="52">inside</text>
@@ -518,6 +674,27 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text x="807" y="156" text-anchor="middle" fill="#42e8c3" font-size="16" font-weight="800">Bottle B only</text>
 </svg>
 </div>
+<svg class="dg-tall" viewBox="0 0 280 376" role="img" aria-label="Timeline showing bottle A leaving the cooler and being returned while bottle B leaves and stays out, so only bottle B is charged">
+<defs><marker id="vgB-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker></defs>
+<text class="dg-t" x="2" y="15" font-size="15" fill="#929cab">Bottle A</text>
+<text class="dg-s" x="2" y="38" font-size="13.5">inside</text>
+<text class="dg-s" x="175" y="38" font-size="13.5" text-anchor="middle">&#8230;put back</text>
+<line x1="4" y1="76" x2="276" y2="76" stroke="rgba(255,255,255,.3)" stroke-dasharray="5 5"/>
+<path d="M14,50 L55,50 L78,102 L138,102 L161,50 L266,50" fill="none" stroke="#929cab" stroke-width="2"/>
+<circle cx="78" cy="102" r="4" fill="#929cab"/><circle cx="161" cy="50" r="4" fill="#929cab"/>
+<text class="dg-s" x="2" y="121" font-size="13.5">outside</text>
+<text class="dg-s" x="108" y="121" font-size="13.5" text-anchor="middle">taken out&#8230;</text>
+<text class="dg-t" x="2" y="157" font-size="15" fill="#42e8c3">Bottle B</text>
+<text class="dg-s" x="2" y="200" font-size="13.5">cooler boundary</text>
+<line x1="4" y1="206" x2="276" y2="206" stroke="rgba(255,255,255,.3)" stroke-dasharray="5 5"/>
+<path d="M14,180 L179,180 L202,232 L266,232" fill="none" stroke="#42e8c3" stroke-width="2"/>
+<circle cx="202" cy="232" r="4" fill="#42e8c3"/>
+<text class="dg-s" x="270" y="251" font-size="13.5" text-anchor="end">taken out, stays out</text>
+<line class="dg-e" x1="140" y1="265" x2="140" y2="291" marker-end="url(#vgB-m)"/>
+<rect x="0" y="297" width="280" height="72" rx="14" fill="rgba(66,232,195,.09)" stroke="#42e8c3" stroke-opacity=".5"/>
+<text class="dg-s" x="140" y="325" font-size="13.5" text-anchor="middle">door closes &#8594; charge</text>
+<text x="140" y="347" text-anchor="middle" fill="#42e8c3" font-size="15" font-weight="800">Bottle B only</text>
+</svg>
 <figcaption>Centroid tracking followed each detected product against a defined cooler region, so the system reasoned about net position over time rather than momentary presence. A bottle that crosses out and back again is worth nothing; only what is still outside when the door closes gets charged.</figcaption>
 </figure>
 
@@ -549,6 +726,17 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text class="dg-s" x="450" y="204" text-anchor="middle">identical for all four causes</text>
 </svg>
 </div>
+<div class="dg-flow">
+<div class="dg-node"><b>Detection</b><span>product never seen</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Classification</b><span>wrong SKU</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Tracking</b><span>identity swapped</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>In / out decision</b><span>crossing misread</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Observed symptom: the wrong amount is charged</b><span>identical for all four causes</span></div>
+</div>
 <figcaption>Because the symptom is the same whichever stage fails, the fix was diagnostic rather than algorithmic: build extensive test data and label every failure by the component responsible. Once a bad transaction could be attributed to detection, classification, tracking or the in/out decision, each stage could be improved on its own evidence.</figcaption>
 </figure>
 
@@ -559,7 +747,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <div class="dg-pan">
 <svg viewBox="0 0 900 300" role="img" aria-label="Cloud deployment sends video frames across the network to Azure, while the edge deployment processes frames on a Jetson device and sends only the transaction">
 <defs>
-<marker id="vgD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
+<marker id="vgD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker>
 <marker id="vgE" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(124,140,255,.6)"/></marker>
 </defs>
 <line x1="340" y1="14" x2="340" y2="286" stroke="rgba(255,255,255,.22)" stroke-dasharray="6 6"/>
@@ -587,6 +775,26 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text x="370" y="114" text-anchor="middle" fill="#7c8cff" font-size="11.5" font-weight="700">model + container updates</text>
 </svg>
 </div>
+<div class="dg-flow">
+<div class="dg-node"><b>Cooler cameras</b></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node ghost"><b>network</b></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Azure &#183; DeepStream</b><span>cloud, warehouse sites</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Transaction</b></div>
+<p class="dg-aside violet"><b>video frames cross</b></p>
+<div class="dg-split teal"></div>
+<div class="dg-node"><b>Cooler cameras</b></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Jetson</b><span>DeepStream on device</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node ghost"><b>network</b></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Transaction</b></div>
+<p class="dg-aside"><b>only the transaction crosses</b></p>
+<p class="dg-aside violet"><b>model + container updates</b></p>
+</div>
 <figcaption>Warehouse sites ran the pipeline in Azure; offices and other commercial locations ran it on an NVIDIA Jetson beside the cooler, so frames never left the premises. Azure-based device management pushed updated models and Docker containers out to deployed devices either way.</figcaption>
 </figure>
 
@@ -606,12 +814,12 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <figure>
 <div class="dg-pan">
 <svg viewBox="0 0 900 290" role="img" aria-label="Top-down view of a shelf showing that the camera sees only the front row of products, misses stock stacked behind it, and also captures products belonging to a second shelf further back">
-<defs><marker id="pgA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<defs><marker id="pgA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker></defs>
 <rect class="dg-box" x="18" y="134" width="38" height="32" rx="7"/>
 <text class="dg-s" x="37" y="184" text-anchor="middle">phone</text>
 <line x1="58" y1="150" x2="672" y2="58" stroke="rgba(255,255,255,.12)"/>
 <line x1="58" y1="150" x2="672" y2="242" stroke="rgba(255,255,255,.12)"/>
-<rect x="250" y="55" width="11" height="190" rx="3" fill="rgba(255,255,255,.22)"/>
+<rect x="250" y="55" width="11" height="190" rx="3" fill="rgba(255,255,255,.4)"/>
 <text class="dg-s" x="248" y="45" text-anchor="middle">target shelf</text>
 <circle cx="287" cy="85" r="13" fill="rgba(66,232,195,.85)"/><circle cx="287" cy="130" r="13" fill="rgba(66,232,195,.85)"/><circle cx="287" cy="175" r="13" fill="rgba(66,232,195,.85)"/><circle cx="287" cy="220" r="13" fill="rgba(66,232,195,.85)"/>
 <circle cx="322" cy="85" r="13" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="322" cy="130" r="13" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="322" cy="175" r="13" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="322" cy="220" r="13" fill="none" stroke="#929cab" stroke-dasharray="3 3"/>
@@ -627,6 +835,26 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text class="dg-s" x="724" y="190">another shelf, still in frame</text>
 </svg>
 </div>
+<svg class="dg-tall" viewBox="0 0 280 394" role="img" aria-label="Top-down view of a shelf showing that the camera sees only the front row of products, misses stock stacked behind it, and also captures products belonging to a second shelf further back">
+<rect class="dg-box" x="121" y="6" width="38" height="30" rx="7"/>
+<text class="dg-s" x="168" y="26" font-size="13.5">phone</text>
+<line x1="140" y1="38" x2="37" y2="288" stroke="rgba(255,255,255,.12)"/>
+<line x1="140" y1="38" x2="243" y2="288" stroke="rgba(255,255,255,.12)"/>
+<text class="dg-s" x="4" y="56" font-size="13.5">target shelf</text>
+<rect x="30" y="66" width="212" height="11" rx="3" fill="rgba(255,255,255,.4)"/>
+<circle cx="62" cy="100" r="14" fill="rgba(66,232,195,.85)"/><circle cx="114" cy="100" r="14" fill="rgba(66,232,195,.85)"/><circle cx="166" cy="100" r="14" fill="rgba(66,232,195,.85)"/><circle cx="218" cy="100" r="14" fill="rgba(66,232,195,.85)"/>
+<circle cx="62" cy="136" r="14" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="114" cy="136" r="14" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="166" cy="136" r="14" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="218" cy="136" r="14" fill="none" stroke="#929cab" stroke-dasharray="3 3"/>
+<circle cx="62" cy="172" r="14" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="114" cy="172" r="14" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="166" cy="172" r="14" fill="none" stroke="#929cab" stroke-dasharray="3 3"/><circle cx="218" cy="172" r="14" fill="none" stroke="#929cab" stroke-dasharray="3 3"/>
+<text class="dg-s" x="4" y="214" font-size="13.5">shelf behind</text>
+<rect x="30" y="224" width="212" height="11" rx="3" fill="rgba(255,255,255,.14)"/>
+<circle cx="62" cy="258" r="14" fill="none" stroke="#ff8b8b"/><circle cx="114" cy="258" r="14" fill="none" stroke="#ff8b8b"/><circle cx="166" cy="258" r="14" fill="none" stroke="#ff8b8b"/><circle cx="218" cy="258" r="14" fill="none" stroke="#ff8b8b"/>
+<circle cx="14" cy="312" r="7" fill="rgba(66,232,195,.85)"/>
+<text class="dg-s" x="30" y="317" font-size="13.5">seen &#8212; the front row</text>
+<circle cx="14" cy="344" r="7" fill="none" stroke="#929cab" stroke-dasharray="3 3"/>
+<text class="dg-s" x="30" y="348" font-size="13.5">real stock, hidden behind it</text>
+<circle cx="14" cy="376" r="7" fill="none" stroke="#ff8b8b"/>
+<text class="dg-s" x="30" y="380" font-size="13.5">another shelf, still in frame</text>
+</svg>
 <figcaption>Seen from above, both counting errors are the same geometry. Products stacked behind the front row are real stock that never reaches the sensor, while products on a shelf further back are not stock at all but appear in the picture regardless. Counting what is visible over-reports one and under-reports the other.</figcaption>
 </figure>
 
@@ -635,7 +863,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <figure>
 <div class="dg-pan">
 <svg viewBox="0 0 900 200" role="img" aria-label="Pipeline where U-Net segmentation removes products belonging to the shelf behind and DPT depth recovers units stacked out of sight, correcting the count in both directions">
-<defs><marker id="pgB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<defs><marker id="pgB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker></defs>
 <rect class="dg-box" x="0" y="60" width="124" height="58" rx="12"/>
 <text class="dg-t" x="62" y="84" text-anchor="middle">Phone images</text>
 <text class="dg-s" x="62" y="102" text-anchor="middle">several per shelf</text>
@@ -664,6 +892,21 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text x="680" y="160" text-anchor="middle" fill="#42e8c3" font-size="11.5" font-weight="700">recovers stacked units</text>
 <text class="dg-s" x="680" y="178" text-anchor="middle">stops under-counting</text>
 </svg>
+</div>
+<div class="dg-flow">
+<div class="dg-node"><b>Phone images</b><span>several per shelf</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Stitch</b></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>U-Net</b><span>isolate target shelf</span></div>
+<p class="dg-aside warn"><b>drops the shelf behind</b>stops over-counting</p>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Detect</b><span>+ classify</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>DPT depth</b><span>explored</span></div>
+<p class="dg-aside"><b>recovers stacked units</b>stops under-counting</p>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Inventory</b></div>
 </div>
 <figcaption>Segmentation and depth solve opposite halves of the same problem. U-Net removes what does not belong to the shelf being measured; DPT was explored to estimate products arranged in stacks, so the count reflects units present rather than units facing the camera.</figcaption>
 </figure>
@@ -700,7 +943,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <figure>
 <div class="dg-pan">
 <svg viewBox="0 0 900 300" role="img" aria-label="One camera frame divided into two equal regions, each cropped and processed by its own independent pose pipeline in parallel, with the pattern extending to N regions">
-<defs><marker id="puA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker></defs>
+<defs><marker id="puA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker></defs>
 <text class="dg-s" x="0" y="40">one camera frame</text>
 <rect class="dg-box" x="0" y="50" width="260" height="190" rx="12"/>
 <line x1="0" y1="145" x2="260" y2="145" stroke="rgba(255,255,255,.3)" stroke-dasharray="5 4"/>
@@ -740,6 +983,50 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text class="dg-s" x="605" y="274" text-anchor="middle">same pattern, N regions — bounded by camera coverage and compute, not by the design</text>
 </svg>
 </div>
+<svg class="dg-tall" viewBox="0 0 280 780" role="img" aria-label="One camera frame divided into two equal regions, each cropped and processed by its own independent pose pipeline in parallel, with the pattern extending to N regions">
+<defs><marker id="puA-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker></defs>
+<text class="dg-s" x="0" y="14" font-size="13.5">one camera frame</text>
+<rect class="dg-box" x="0" y="22" width="280" height="150" rx="12"/>
+<line x1="0" y1="97" x2="280" y2="97" stroke="rgba(255,255,255,.3)" stroke-dasharray="5 4"/>
+<circle cx="30" cy="60" r="9" fill="rgba(66,232,195,.8)"/>
+<line x1="43" y1="60" x2="100" y2="60" stroke="#42e8c3" stroke-width="2.5"/>
+<text class="dg-s" x="108" y="65" font-size="13.5">region 1</text>
+<circle cx="30" cy="134" r="9" fill="rgba(124,140,255,.8)"/>
+<line x1="43" y1="134" x2="100" y2="134" stroke="#7c8cff" stroke-width="2.5"/>
+<text class="dg-s" x="108" y="139" font-size="13.5">region 2</text>
+<rect x="0" y="194" width="3" height="228" rx="1.5" fill="#42e8c3" fill-opacity=".6"/>
+<rect class="dg-box" x="14" y="194" width="266" height="36" rx="12"/>
+<text class="dg-t" x="147" y="217" font-size="15" text-anchor="middle">Crop</text>
+<line class="dg-e" x1="147" y1="230" x2="147" y2="246" marker-end="url(#puA-m)"/>
+<rect class="dg-box" x="14" y="250" width="266" height="48" rx="12"/>
+<text class="dg-t" x="147" y="270" font-size="15" text-anchor="middle">Pose pipeline</text>
+<text class="dg-s" x="147" y="288" font-size="13.5" text-anchor="middle">MediaPipe landmarks</text>
+<line class="dg-e" x1="147" y1="298" x2="147" y2="314" marker-end="url(#puA-m)"/>
+<rect class="dg-box" x="14" y="318" width="266" height="36" rx="12"/>
+<text class="dg-t" x="147" y="341" font-size="15" text-anchor="middle">Joint angles</text>
+<line class="dg-e" x1="147" y1="354" x2="147" y2="370" marker-end="url(#puA-m)"/>
+<rect class="dg-box" x="14" y="374" width="266" height="48" rx="12"/>
+<text class="dg-t" x="147" y="394" font-size="15" text-anchor="middle">Reps</text>
+<text class="dg-s" x="147" y="412" font-size="13.5" text-anchor="middle">+ form check</text>
+<rect x="0" y="450" width="3" height="228" rx="1.5" fill="#7c8cff" fill-opacity=".6"/>
+<rect class="dg-box" x="14" y="450" width="266" height="36" rx="12"/>
+<text class="dg-t" x="147" y="473" font-size="15" text-anchor="middle">Crop</text>
+<line class="dg-e" x1="147" y1="486" x2="147" y2="502" marker-end="url(#puA-m)"/>
+<rect class="dg-box" x="14" y="506" width="266" height="48" rx="12"/>
+<text class="dg-t" x="147" y="526" font-size="15" text-anchor="middle">Pose pipeline</text>
+<text class="dg-s" x="147" y="544" font-size="13.5" text-anchor="middle">MediaPipe landmarks</text>
+<line class="dg-e" x1="147" y1="554" x2="147" y2="570" marker-end="url(#puA-m)"/>
+<rect class="dg-box" x="14" y="574" width="266" height="36" rx="12"/>
+<text class="dg-t" x="147" y="597" font-size="15" text-anchor="middle">Joint angles</text>
+<line class="dg-e" x1="147" y1="610" x2="147" y2="626" marker-end="url(#puA-m)"/>
+<rect class="dg-box" x="14" y="630" width="266" height="48" rx="12"/>
+<text class="dg-t" x="147" y="650" font-size="15" text-anchor="middle">Reps</text>
+<text class="dg-s" x="147" y="668" font-size="13.5" text-anchor="middle">+ form check</text>
+<rect x="0" y="702" width="280" height="72" rx="12" fill="none" stroke="rgba(255,255,255,.16)" stroke-dasharray="6 5"/>
+<text class="dg-s" x="140" y="724" font-size="13.5" text-anchor="middle">same pattern, N regions &#8212;</text>
+<text class="dg-s" x="140" y="742" font-size="13.5" text-anchor="middle">bounded by camera coverage and</text>
+<text class="dg-s" x="140" y="760" font-size="13.5" text-anchor="middle">compute, not by the design</text>
+</svg>
 <figcaption>Splitting the frame rather than the model means each person gets a clean, isolated pose estimate, and the pipelines run independently in parallel. Two was what the contract needed; nothing in the architecture stops it being more, which is the reason to build it this way rather than special-casing two people.</figcaption>
 </figure>
 
@@ -758,7 +1045,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <figure>
 <div class="dg-pan">
 <svg viewBox="0 0 900 270" role="img" aria-label="A brake pad whose inspection questions split into two kinds: geometric measurements answered by classical image processing, and pattern judgements explored with learned models">
-<defs><marker id="bpA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
+<defs><marker id="bpA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker>
 <marker id="bpB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker>
 <marker id="bpC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker></defs>
 <text class="dg-s" x="40" y="76">brake pad</text>
@@ -783,6 +1070,33 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text x="500" y="240" fill="#7c8cff" font-size="11.5" font-weight="700">does this pattern look wrong</text>
 </svg>
 </div>
+<svg class="dg-tall" viewBox="0 0 280 409" role="img" aria-label="A brake pad whose inspection questions split into two kinds: geometric measurements answered by classical image processing, and pattern judgements explored with learned models">
+<defs><marker id="bpA-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker>
+<marker id="bpB-m" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker>
+<marker id="bpC-m" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker></defs>
+<text class="dg-s" x="8" y="26" font-size="13.5">brake pad</text>
+<rect class="dg-box" x="8" y="36" width="264" height="130" rx="38"/>
+<circle cx="72" cy="101" r="20" fill="rgba(7,9,13,.9)" stroke="rgba(255,255,255,.3)"/>
+<circle cx="150" cy="79" r="14" fill="rgba(7,9,13,.9)" stroke="rgba(255,255,255,.3)"/>
+<circle cx="212" cy="123" r="16" fill="rgba(7,9,13,.9)" stroke="rgba(255,255,255,.3)"/>
+<line x1="54" y1="101" x2="90" y2="101" stroke="#42e8c3" marker-start="url(#bpC-m)" marker-end="url(#bpB-m)"/>
+<text x="72" y="138" text-anchor="middle" fill="#42e8c3" font-size="13.5" font-weight="700">Ø</text>
+<line x1="150" y1="36" x2="150" y2="65" stroke="rgba(66,232,195,.45)" stroke-dasharray="3 3"/>
+<line x1="8" y1="79" x2="136" y2="79" stroke="rgba(66,232,195,.45)" stroke-dasharray="3 3"/>
+<path d="M188,57 L194,64 M199,53 L205,60 M210,59 L216,66" stroke="#7c8cff" stroke-width="2"/>
+<path class="dg-e" d="M140,166 L140,182 L4,182 L4,360 L18,360" marker-end="url(#bpA-m)"/>
+<path class="dg-e" d="M4,252 L18,252" marker-end="url(#bpA-m)"/>
+<rect class="dg-box" x="18" y="196" width="262" height="111" rx="14"/>
+<text class="dg-t" x="30" y="218" font-size="15">Classical image processing</text>
+<text class="dg-s" x="30" y="237" font-size="13.5">contours &#183; custom edge detection &#183;</text>
+<text class="dg-s" x="30" y="255" font-size="13.5">template matching</text>
+<text x="30" y="275" fill="#42e8c3" font-size="13.5" font-weight="700">how many holes &#183;</text>
+<text x="30" y="293" fill="#42e8c3" font-size="13.5" font-weight="700">how wide &#183; where</text>
+<rect class="dg-box" x="18" y="323" width="262" height="75" rx="14"/>
+<text class="dg-t" x="30" y="345" font-size="15">Learned models</text>
+<text class="dg-s" x="30" y="364" font-size="13.5">custom CNN, explored</text>
+<text x="30" y="384" fill="#7c8cff" font-size="13.5" font-weight="700">does this pattern look wrong</text>
+</svg>
 <figcaption>Inspection asked two kinds of question of the same part. Counting holes and measuring a diameter or a position have exact answers, and classical image processing gives them directly — so those were solved with contours, custom edge detection and template matching. Judging whether a surface looks defective has no measurement to take, which is where custom CNN approaches were explored instead.</figcaption>
 </figure>
 
@@ -804,7 +1118,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <div class="dg-pan">
 <svg viewBox="0 0 900 262" role="img" aria-label="One CCTV view carries several virtual door lines; detection and tracking run once and the resulting tracks feed footfall counts, gender split and heatmaps">
 <defs>
-<marker id="mmA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
+<marker id="mmA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker>
 <marker id="mmB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker>
 <marker id="mmC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#929cab"/></marker>
 </defs>
@@ -837,6 +1151,21 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <text class="dg-s" x="730" y="230" text-anchor="middle">where the same centroids linger, and how long</text>
 </svg>
 </div>
+<div class="dg-flow">
+<p class="dg-cap">one existing CCTV view</p>
+<div class="dg-row">
+<div class="dg-node ghost"><b>Door A</b></div>
+<div class="dg-node ghost"><b>Door B</b></div>
+</div>
+<p class="dg-aside"><b>in</b>out</p>
+<p class="dg-edge">frames</p>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Detect + track</b><span>YOLO + centroid</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Footfall in / out</b><span>which track crossed which line, and which way</span></div>
+<div class="dg-node"><b>Gender split</b><span>ResNet on the same person crops &#183; ~91%</span></div>
+<div class="dg-node"><b>Heatmaps + dwell</b><span>where the same centroids linger, and how long</span></div>
+</div>
 <figcaption>Detection and tracking run once; everything else is a different question asked of the same tracks. Virtual lines are drawn per entry region rather than per camera, which is why one view can count several doors independently — the direction a track crosses a line is what makes it an entry or an exit.</figcaption>
 </figure>
 <div class="cols">
@@ -854,7 +1183,7 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <div class="dg-pan">
 <svg viewBox="0 0 900 300" role="img" aria-label="A read failure sends the belt backwards to present the item again, and a second failure stops the belt to hold it in view, so the vision result drives the conveyor motor">
 <defs>
-<marker id="cvA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.4)"/></marker>
+<marker id="cvA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,.62)"/></marker>
 <marker id="cvB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#42e8c3"/></marker>
 <marker id="cvC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7c8cff"/></marker>
 </defs>
@@ -882,6 +1211,26 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
 <path d="M500,178 L500,266 L305,266 L305,184" fill="none" stroke="#7c8cff" stroke-opacity=".7" marker-end="url(#cvC)"/>
 <text x="402" y="284" text-anchor="middle" fill="#7c8cff" font-size="11.5" font-weight="700">still failing — belt stops and holds it in view</text>
 </svg>
+</div>
+<div class="dg-flow">
+<div class="dg-node"><b>Item enters</b><span>tracked in a region</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Read barcode</b><span>library + preprocessing</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Read OK?</b></div>
+<p class="dg-edge">yes</p>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Verify vs catalogue</b><span>client-provided dataset</span></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node"><b>Continue forward</b></div>
+<div class="dg-split"></div>
+<p class="dg-edge">no</p>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node on"><b>belt reverses &#8212; present the item again</b></div>
+<svg class="dg-link" aria-hidden="true"><use href="#dg-down"/></svg>
+<div class="dg-node alt"><b>still failing &#8212; belt stops and holds it in view</b></div>
+<svg class="dg-link up" aria-hidden="true"><use href="#dg-down"/></svg>
+<p class="dg-aside"><b>Read barcode</b></p>
 </div>
 <figcaption>The loops are the point: a failed read doesn't raise an exception, it drives the motor. The first failure reverses the belt to re-present the item, and a second stops it entirely to hold the item in front of the camera — so the vision result is a control signal for physical hardware, not just a database lookup.</figcaption>
 </figure>
@@ -953,72 +1302,6 @@ footer{padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var
   })();
 </script>
 <script>
-/* Diagrams pan sideways on narrow screens. Two jobs here, both cosmetic — the
-   panning itself is CSS and works with this script absent.
-
-   Drop the right-edge fade once a diagram is scrolled to its end, so the fade
-   always means "there is more", never decoration. And label the first diagram
-   with the gesture, removing it everywhere the moment anyone uses it: the hint
-   is only worth its space until it has been read once. */
-(function () {
-  "use strict";
-  var pans = Array.prototype.slice.call(document.querySelectorAll(".dg-pan"));
-  if (!pans.length) return;
-
-  function syncEnd(pan) {
-    // A fractional pixel of slack: scrollWidth and clientWidth rarely land
-    // exactly equal at the end of a scroll.
-    pan.dataset.end = String(pan.scrollLeft + pan.clientWidth >= pan.scrollWidth - 2);
-  }
-
-  var first = pans[0].closest("figure");
-  if (first) {
-    var hint = document.createElement("span");
-    hint.className = "dg-hint";
-    hint.setAttribute("aria-hidden", "true");
-    hint.textContent = "Swipe \u2192";
-    first.appendChild(hint);
-  }
-
-  function retireHint() {
-    if (first) first.dataset.hint = "used";
-  }
-
-  function sync(pan) {
-    syncEnd(pan);
-    // Safari does not make an overflowing scroll region focusable on its own,
-    // so a keyboard user cannot reach the part of the diagram that is off
-    // screen. Only while it actually overflows, so a desktop reader does not
-    // collect eighteen tab stops that go nowhere.
-    if (pan.scrollWidth > pan.clientWidth + 2) {
-      pan.setAttribute("tabindex", "0");
-      // A focus stop with no name is announced as nothing at all. The diagram
-      // already describes itself; borrow that rather than inventing a label.
-      if (!pan.getAttribute("aria-label")) {
-        var svg = pan.querySelector("svg");
-        var described = svg && svg.getAttribute("aria-label");
-        pan.setAttribute("role", "group");
-        pan.setAttribute("aria-label", described ? described + " (scrollable)" : "Scrollable diagram");
-      }
-    } else {
-      pan.removeAttribute("tabindex");
-      pan.removeAttribute("role");
-      pan.removeAttribute("aria-label");
-    }
-  }
-
-  pans.forEach(function (pan) {
-    sync(pan);
-    pan.addEventListener("scroll", function () {
-      syncEnd(pan);
-      retireHint();
-    }, { passive: true });
-  });
-
-  window.addEventListener("resize", function () {
-    pans.forEach(sync);
-  }, { passive: true });
-})();
 </script>
 <script src="voice/agent.js" data-token-endpoint="https://portfolio-token.tunesh-verma.workers.dev"></script>
 </body>
