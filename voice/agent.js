@@ -127,6 +127,11 @@
   /* ------------------------------------------------------------- rendering */
 
   var MAX_DPR = 2;
+  // The size the panel draws in, in CSS pixels. Kept here rather than derived
+  // from the backing store: once the ratio is capped, buffer width over the
+  // device's own ratio is not the drawing size any more, and on a 3x screen
+  // that put the whole entity in the top-left corner of its canvas.
+  var stageSize = 0;
 
   function sizeCanvas() {
     var rect = canvas.getBoundingClientRect();
@@ -134,7 +139,8 @@
     canvas.width = Math.max(1, Math.round(rect.width * dpr));
     canvas.height = Math.max(1, Math.round(rect.height * dpr));
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    return rect.width;
+    stageSize = rect.width;
+    return stageSize;
   }
 
   // Each analyser keeps its own buffer. Sharing one would leave the sphere's
@@ -324,7 +330,7 @@
   }
 
   function frame(now) {
-    var size = canvas.clientWidth ? canvas.width / (window.devicePixelRatio || 1) : 0;
+    var size = stageSize || sizeCanvas();
     if (!size) {
       rafId = requestAnimationFrame(frame);
       return;
@@ -393,6 +399,7 @@
     if (rafId !== null) cancelAnimationFrame(rafId);
     rafId = null;
     lastFrameAt = 0;
+    stageSize = 0;
   }
 
   /* ----------------------------------------------------------------- state */
