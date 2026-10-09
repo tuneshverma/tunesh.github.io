@@ -102,6 +102,21 @@
   color: var(--text, #eef2f7);
 }
 
+/* Says what the status label cannot: what to do about it. Only ever filled
+   while the agent is being waited on, so its presence is itself part of the
+   signal that the call has not started. */
+.va-hint {
+  margin: 10px auto 0;
+  max-width: 36ch;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted, #929cab);
+}
+
+.va-hint:empty {
+  margin: 0;
+}
+
 .va-caption {
   min-height: 42px;
   margin: 8px auto 0;
@@ -162,6 +177,39 @@
 
 .va-btn.va-end:hover:not(:disabled) {
   border-color: rgba(255, 106, 106, 0.75);
+}
+
+/* Waiting on the agent is not a call, so nothing about the panel should look
+   like one. The status label and the stalled sphere carry it; the eyebrow
+   dims so the whole panel reads as pending rather than live. */
+.va-overlay[data-phase="connecting"] .va-eyebrow,
+.va-overlay[data-phase="waking"] .va-eyebrow {
+  color: var(--muted, #929cab);
+}
+
+.va-overlay[data-phase="connecting"] .va-status,
+.va-overlay[data-phase="waking"] .va-status {
+  color: var(--muted, #929cab);
+}
+
+/* Mute is meaningless before there is anybody to mute yourself from, so it
+   leaves rather than sitting there greyed out. Cancel stays. */
+.va-overlay[data-phase="connecting"] .va-mute,
+.va-overlay[data-phase="waking"] .va-mute {
+  display: none;
+}
+
+/* Cancelling something that has not started is not a destructive act, so it
+   drops the red it wears as "End call". */
+.va-overlay[data-phase="connecting"] .va-end,
+.va-overlay[data-phase="waking"] .va-end {
+  border-color: var(--line, #202733);
+  color: var(--muted, #929cab);
+}
+
+.va-overlay[data-phase="waking"] .va-end:hover:not(:disabled) {
+  border-color: #303949;
+  color: var(--text, #eef2f7);
 }
 
 /* Mute and End call only mean something during a call. Once it has failed or

@@ -14,6 +14,22 @@
   var script = document.currentScript;
   var TOKEN_ENDPOINT = script && script.dataset.tokenEndpoint;
 
+  /* The agent deployment sleeps when idle and takes 10-20 seconds to come
+     back, during which the room is joined, the microphone is open and
+     absolutely nobody is listening. These bound how long the panel waits on
+     it, and when the copy stops being breezy about it. */
+  var WARM_PATH = "/warm";
+  var AGENT_SLOW_AFTER = 7000;
+  var AGENT_WAIT_TIMEOUT = 45000;
+  /** One warm ping per tab per this long. The Worker throttles globally too. */
+  var WARM_INTERVAL = 120000;
+
+  /* Published by the agent session on its participant. Anything in READY
+     means a pipeline is running and speech will actually be heard;
+     "initializing" explicitly does not. */
+  var AGENT_STATE_ATTR = "lk.agent.state";
+  var AGENT_READY = { idle: 1, listening: 1, thinking: 1, speaking: 1 };
+
   var TAU = Math.PI * 2;
   // The hero orb tilts its two rings to these angles. Reusing them is what
   // makes the call visual read as the same object, woken up.
@@ -24,16 +40,36 @@
     idle: [146, 156, 171],
     listening: [66, 232, 195],
     speaking: [124, 140, 255],
+    // Deliberately darker and flatter than idle. Waiting has to be readable
+    // as a different thing from a live call that happens to be quiet.
+    waking: [78, 88, 104],
   };
+
+  // The entity is drawn small and dim while waiting and full size once the
+  // agent is really there, so "it has woken up" is a change you can see from
+  // across the room rather than a word that changed in the status line.
+  var RADIUS_WAITING = 0.15;
+  var RADIUS_LIVE = 0.3;
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   var state = {
-    phase: "idle", // idle | connecting | live | ended | error
+    // idle | ready | connecting | waking | live | ended | error
+    //
+    // "waking" is the one that matters: the room is joined but the agent is
+    // not in it yet. Treating that as live is what used to leave visitors
+    // talking to nobody.
+    phase: "idle",
     speaking: false,
     muted: false,
+    slow: false,
     level: 0,
     color: COLORS.idle.slice(),
+    radius: RADIUS_WAITING,
+    ring: 0,
+    // Advanced by hand rather than read off the clock, so slowing the entity
+    // down while it waits changes its speed without jumping its phase.
+    clock: 0,
   };
 
   var room = null;
@@ -42,8 +78,13 @@
   var micAnalyser = null;
   var attachedAudio = [];
   var rafId = null;
+  var lastFrameAt = 0;
   var sdkPromise = null;
   var lastFocus = null;
+  var agentAudioLive = false;
+  var slowTimer = null;
+  var waitTimer = null;
+  var lastWarm = 0;
 
   /* ---------------------------------------------------------------- markup */
 
@@ -59,6 +100,7 @@
     '  <p class="va-sub">Answers from my portfolio and r&eacute;sum&eacute;.</p>',
     '  <div class="va-stage"><canvas class="va-canvas"></canvas></div>',
     '  <div class="va-status" role="status" aria-live="polite">Connecting&hellip;</div>',
+    '  <p class="va-hint"></p>',
     '  <p class="va-caption"></p>',
     '  <p class="va-error" role="alert"></p>',
     '  <div class="va-controls">',
@@ -73,6 +115,7 @@
   var panel = overlay.querySelector(".va-panel");
   var canvas = overlay.querySelector(".va-canvas");
   var statusEl = overlay.querySelector(".va-status");
+  var hintEl = overlay.querySelector(".va-hint");
   var captionEl = overlay.querySelector(".va-caption");
   var errorEl = overlay.querySelector(".va-error");
   var muteBtn = overlay.querySelector(".va-mute");
@@ -196,6 +239,11 @@
       c.save();
     }
 
+    // Dimmed while the agent is still booting, so the ring around it is what
+    // the eye goes to. The creature is there, but it is not the subject yet.
+    // Set after save() so that nothing drawn afterwards inherits it.
+    c.globalAlpha = opts.dim === undefined ? 1 : opts.dim;
+
     var halo = c.createRadialGradient(cx, cy, base * 0.2, cx, cy, size * 0.54);
     halo.addColorStop(0, rgba(opts.colorA, 0.2 + energy * 0.22 + glow * 0.12));
     halo.addColorStop(1, "rgba(0,0,0,0)");
@@ -235,6 +283,44 @@
     }
   }
 
+  /* The ring only ever appears while the agent is being waited on, so it is
+     the one unambiguous "not yet" marker on screen: ring turning, nothing is
+     listening. It is indeterminate on purpose — a cold start is 10 seconds or
+     25 depending on the day, and a bar that lies about which is worse than
+     one that admits it doesn't know. */
+  function drawWaitRing(c, size, alpha) {
+    if (alpha < 0.01) return;
+    var cx = size / 2;
+    var cy = size / 2;
+    var r = size * 0.33;
+
+    c.save();
+    c.lineWidth = Math.max(2, size * 0.011);
+    c.lineCap = "round";
+
+    c.beginPath();
+    c.arc(cx, cy, r, 0, TAU);
+    c.strokeStyle = rgba(COLORS.idle, 0.14 * alpha);
+    c.stroke();
+
+    if (reduceMotion.matches) {
+      // A still ring with a gap in it still reads as "in progress" without
+      // anything moving, which is the whole point of the preference.
+      c.beginPath();
+      c.arc(cx, cy, r, -Math.PI / 2, Math.PI * 0.55);
+      c.strokeStyle = rgba(COLORS.listening, 0.5 * alpha);
+      c.stroke();
+    } else {
+      var head = (state.clock * 1.25) % 1;
+      var start = head * TAU - Math.PI / 2;
+      c.beginPath();
+      c.arc(cx, cy, r, start, start + TAU * 0.24);
+      c.strokeStyle = rgba(COLORS.listening, 0.72 * alpha);
+      c.stroke();
+    }
+    c.restore();
+  }
+
   function frame(now) {
     var size = canvas.clientWidth ? canvas.width / (window.devicePixelRatio || 1) : 0;
     if (!size) {
@@ -242,17 +328,26 @@
       return;
     }
 
+    var waiting = state.phase === "connecting" || state.phase === "waking";
+
+    // Clamped so a backgrounded tab returning doesn't jump the animation a
+    // whole second forward.
+    var dt = lastFrameAt ? Math.min(0.05, (now - lastFrameAt) / 1000) : 0;
+    lastFrameAt = now;
+    // Barely moving while it waits: the creature is asleep, not idling.
+    state.clock += dt * (waiting ? 0.22 : 1);
+
     var agent = sample(agentAnalyser);
     var mic = state.muted ? null : sample(micAnalyser);
     var agentLevel = agent ? agent.level : 0;
-    var micLevel = mic ? mic.level : 0;
 
     // Hysteresis, so a breath between words doesn't flip the label.
     if (agentLevel > 0.12) state.speaking = true;
     else if (agentLevel < 0.05) state.speaking = false;
 
-    var target =
-      state.phase !== "live"
+    var target = waiting
+      ? COLORS.waking
+      : state.phase !== "live"
         ? COLORS.idle
         : state.speaking
           ? COLORS.speaking
@@ -261,22 +356,28 @@
             : COLORS.listening;
 
     state.color = mix(state.color, target, 0.08);
+    state.radius += ((waiting ? RADIUS_WAITING : RADIUS_LIVE) - state.radius) * 0.08;
+    state.ring += ((waiting ? 1 : 0) - state.ring) * 0.12;
 
     // The sphere reacts to whoever holds the floor, so the deformation always
-    // matches the voice the caller is hearing.
+    // matches the voice the caller is hearing. Nobody holds the floor while
+    // the agent is still booting, so it holds perfectly still — audio arriving
+    // before then is the microphone warming up, not a conversation.
     var source = state.speaking ? agent : mic;
-    var active = source ? source.level : 0;
+    var active = waiting ? 0 : source ? source.level : 0;
     state.level += (active - state.level) * 0.22;
 
     drawEntity(ctx, size, {
-      t: now / 1000,
+      t: state.clock,
       colorA: state.color,
       colorB: lift(state.color, 0.42),
       energy: state.level,
       glow: 0,
-      radius: 0.3,
+      radius: state.radius,
+      dim: 1 - state.ring * 0.62,
       clip: false,
     });
+    drawWaitRing(ctx, size, state.ring);
 
     rafId = requestAnimationFrame(frame);
   }
@@ -289,6 +390,7 @@
   function stopRendering() {
     if (rafId !== null) cancelAnimationFrame(rafId);
     rafId = null;
+    lastFrameAt = 0;
   }
 
   /* ----------------------------------------------------------------- state */
@@ -309,6 +411,13 @@
     statusEl.textContent = text;
   }
 
+  // The hint carries the one thing the status label cannot: what the visitor
+  // should do about it. It lives above the caption so a late transcript never
+  // shoves it around.
+  function setHint(text) {
+    hintEl.textContent = text || "";
+  }
+
   function setError(text) {
     errorEl.textContent = text || "";
   }
@@ -316,10 +425,148 @@
   function refreshStatus() {
     if (state.phase === "ready") return setStatus("Ready when you are");
     if (state.phase === "connecting") return setStatus("Connecting…");
+    if (state.phase === "waking") {
+      return setStatus(state.slow ? "Still waking up…" : "Waking up my AI…");
+    }
     if (state.phase === "ended") return setStatus("Call ended");
     if (state.phase === "error") return setStatus("Not connected");
     if (state.muted) return setStatus("Microphone off");
     setStatus(state.speaking ? "Speaking" : "Listening");
+  }
+
+  /* -------------------------------------------------- is anyone there yet?
+
+     Joining the room is not the same event as the agent being able to hear
+     you, and on a deployment that sleeps when idle the gap between them is
+     ten to twenty seconds. The panel used to close that gap by assuming:
+     room connected, therefore listening. Visitors spoke into it and nothing
+     came back.
+
+     So readiness is now something the agent itself says. Its session
+     publishes `lk.agent.state` on its participant and moves it off
+     "initializing" once the pipeline is actually running. Its audio track
+     going live says the same thing and is what arrives if an SDK or agent
+     version ever stops publishing the attribute, so either will do. */
+
+  function agentStateOf(participant) {
+    var attrs = participant && participant.attributes;
+    return (attrs && attrs[AGENT_STATE_ATTR]) || "";
+  }
+
+  function findAgent(activeRoom) {
+    var found = null;
+    activeRoom.remoteParticipants.forEach(function (participant) {
+      if (!found && participant.isAgent) found = participant;
+    });
+    return found;
+  }
+
+  function clearWaitTimers() {
+    clearTimeout(slowTimer);
+    clearTimeout(waitTimer);
+    slowTimer = null;
+    waitTimer = null;
+  }
+
+  function goLive() {
+    if (state.phase !== "waking") return;
+    clearWaitTimers();
+    setPhase("live");
+    setHint("");
+    muteBtn.disabled = false;
+    endBtn.disabled = false;
+    endBtn.textContent = "End call";
+    refreshStatus();
+  }
+
+  function checkAgentReady() {
+    if (!room || state.phase !== "waking") return;
+    var agent = findAgent(room);
+    if (!agent) return;
+    if (AGENT_READY[agentStateOf(agent)] || agentAudioLive) goLive();
+  }
+
+  /* Nothing in the SDK tells us a dispatch is never coming — a job that
+     crashed on boot and one that is still booting look identical from here.
+     Only the clock separates them. */
+  function startWaiting() {
+    clearWaitTimers();
+    setPhase("waking");
+    state.slow = false;
+    refreshStatus();
+    setHint("Hold on — it can\u2019t hear you yet.");
+    // Cancelling a call that has not started is not ending one.
+    endBtn.disabled = false;
+    endBtn.textContent = "Cancel";
+    muteBtn.disabled = true;
+
+    slowTimer = setTimeout(function () {
+      state.slow = true;
+      refreshStatus();
+      setHint(
+        "My AI server sleeps when nobody is using it. Waking it takes ten to " +
+          "twenty seconds — it will say hello as soon as it is up.",
+      );
+    }, AGENT_SLOW_AFTER);
+
+    waitTimer = setTimeout(function () {
+      teardown(null);
+      setPhase("error");
+      refreshStatus();
+      setHint("");
+      setError(
+        "My AI didn\u2019t pick up. It was most likely still starting — try " +
+          "again and it should come straight through.",
+      );
+    }, AGENT_WAIT_TIMEOUT);
+  }
+
+  /* ------------------------------------------------------------ prewarming
+
+     The deployment scales to zero when idle, so the first caller of the hour
+     pays for a container to boot before anyone answers. This asks the Worker
+     to wake it as soon as somebody looks like a plausible caller, so the boot
+     overlaps with them reading the page rather than with them sitting in
+     front of a dead line.
+
+     Fire and forget, on purpose. It is an optimisation: if it fails, or is
+     throttled, or the visitor never calls, nothing on the page changes. The
+     Worker decides how often a ping actually becomes a dispatch, so being
+     too eager here costs a request rather than compute. */
+
+  var WARM_KEY = "va-warmed-at";
+
+  function warmedAt() {
+    if (lastWarm) return lastWarm;
+    // Survives index.html -> work.html, where this script loads again from
+    // scratch but the deployment it woke is still warm.
+    try {
+      return Number(window.sessionStorage.getItem(WARM_KEY)) || 0;
+    } catch (err) {
+      return 0; // private mode, or storage blocked
+    }
+  }
+
+  function warm() {
+    if (!TOKEN_ENDPOINT) return;
+    var now = Date.now();
+    if (now - warmedAt() < WARM_INTERVAL) return;
+    lastWarm = now;
+    try {
+      window.sessionStorage.setItem(WARM_KEY, String(now));
+    } catch (err) {
+      /* the in-memory copy still dedupes for the rest of this page */
+    }
+
+    var endpoint;
+    try {
+      endpoint = new URL(WARM_PATH, TOKEN_ENDPOINT).toString();
+    } catch (err) {
+      return;
+    }
+    fetch(endpoint, { method: "POST" }).catch(function () {
+      /* nothing to recover: the visitor just pays the cold start */
+    });
   }
 
   /* ------------------------------------------------------------- SDK + room */
@@ -441,7 +688,10 @@
 
     setPhase("connecting");
     state.muted = false;
+    state.slow = false;
+    agentAudioLive = false;
     refreshStatus();
+    setHint("");
     setError("");
     captionEl.textContent = "";
 
@@ -476,7 +726,7 @@
 
     room = new LK.Room({ adaptiveStream: true, dynacast: true });
 
-    room.on(LK.RoomEvent.TrackSubscribed, function (track) {
+    room.on(LK.RoomEvent.TrackSubscribed, function (track, publication, participant) {
       if (track.kind !== "audio") return;
       // Attaching returns an <audio> element that must stay in the DOM for
       // playback to continue.
@@ -485,9 +735,25 @@
       document.body.appendChild(el);
       attachedAudio.push(el);
       agentAnalyser = attachAnalyser(track.mediaStreamTrack);
+      // The session only publishes once it is running, so this is the second
+      // readiness signal and the one that does not depend on attributes.
+      if (participant && participant.isAgent) {
+        agentAudioLive = true;
+        checkAgentReady();
+      }
     });
 
+    // Either of these can be the moment the agent becomes reachable: it may
+    // join already running, or join and flip its state a beat later.
+    room.on(LK.RoomEvent.ParticipantConnected, checkAgentReady);
+    room.on(LK.RoomEvent.ParticipantAttributesChanged, checkAgentReady);
+
     room.on(LK.RoomEvent.Disconnected, function () {
+      // This fires a beat after we disconnect the room ourselves, which we do
+      // when reporting a failure and when the visitor closes the panel. In
+      // neither case is "Call ended" the truth, and arriving last it would
+      // otherwise be the label left on screen.
+      if (state.phase !== "live" && state.phase !== "waking") return;
       teardown("Call ended");
     });
 
@@ -522,13 +788,18 @@
       micAnalyser = attachAnalyser(micPub.track.mediaStreamTrack);
     }
 
-    setPhase("live");
-    muteBtn.disabled = false;
-    endBtn.disabled = false;
-    refreshStatus();
+    // The microphone is left open through the wait on purpose: the permission
+    // prompt and the echo canceller's warmup both want to happen now rather
+    // than at the moment the agent finally speaks. The panel just has to be
+    // honest that nothing is listening to it yet.
+    startWaiting();
+    // The agent can beat us into the room — on a warm deployment it usually
+    // does — and then no event ever fires, because it all happened already.
+    checkAgentReady();
   }
 
   function teardown(endMessage) {
+    clearWaitTimers();
     if (room) {
       try {
         room.disconnect();
@@ -543,12 +814,16 @@
     attachedAudio.length = 0;
     agentAnalyser = null;
     micAnalyser = null;
+    agentAudioLive = false;
     state.speaking = false;
     state.muted = false;
+    state.slow = false;
     muteBtn.disabled = true;
     muteBtn.setAttribute("aria-pressed", "false");
     muteBtn.textContent = "Mute";
     endBtn.disabled = true;
+    endBtn.textContent = "End call";
+    setHint("");
     if (endMessage) {
       setPhase("ended");
       refreshStatus();
@@ -593,6 +868,8 @@
      granted for this site, in which case it just connects. */
 
   function startWhenAllowed() {
+    // Arriving on /#talk is as strong an intent signal as the site gets.
+    warm();
     setPhase("ready");
     refreshStatus();
     setError("");
@@ -655,7 +932,14 @@
   });
 
   endBtn.addEventListener("click", function () {
+    var cancelled = state.phase === "waking";
     teardown("Call ended");
+    if (cancelled) {
+      // Nothing ever connected, so "Call ended" would misdescribe what the
+      // visitor just did — they gave up on one that never started.
+      setStatus("Call cancelled");
+      retryBtn.textContent = "Try again";
+    }
   });
 
   retryBtn.addEventListener("click", function () {
@@ -734,7 +1018,12 @@
   }
 
   ["mouseenter", "focus"].forEach(function (evt) {
-    fab.addEventListener(evt, function () { miniHover = 1; });
+    fab.addEventListener(evt, function () {
+      miniHover = 1;
+      // The strongest signal on the page: a click is usually what happens
+      // next, so the boot gets a head start of a second or two for free.
+      warm();
+    });
   });
   ["mouseleave", "blur"].forEach(function (evt) {
     fab.addEventListener(evt, function () { miniHover = 0; });
@@ -792,7 +1081,12 @@
 
     if (next !== travelState) {
       var wasHidden = travelState === null || travelState === "hidden";
+      var firstPlacement = travelState === null;
       travelState = next;
+      // The button has scrolled into view, so a call is now one click away
+      // from anywhere on the page. Not on the first placement, which is a
+      // page load rather than anybody doing anything.
+      if (!firstPlacement && next !== "hidden") warm();
       fab.classList.toggle("va-fab--hidden", next === "hidden");
       fab.classList.toggle("va-fab--docked", next === "docked");
       // Don't animate a journey from nowhere — the first appearance should
@@ -845,7 +1139,29 @@
     open({ deferred: true });
   }
 
+  /* Someone who has scrolled or moved a pointer, and whose tab is still
+     visible a few seconds later, is a reader. A crawler and a background tab
+     are neither, and waking the agent for those is pure waste. This is a low
+     enough bar to catch most real visitors before they reach the button, and
+     a high enough one to leave automated traffic out. */
+  var engagementNoted = false;
+
+  function noteEngagement() {
+    if (engagementNoted) return;
+    engagementNoted = true;
+    setTimeout(function () {
+      if (document.visibilityState === "visible") warm();
+    }, 10000);
+  }
+
+  ["pointermove", "touchstart", "keydown", "scroll"].forEach(function (evt) {
+    window.addEventListener(evt, noteEngagement, { passive: true, once: true });
+  });
+
   document.querySelectorAll("[data-va-open]").forEach(function (el) {
+    ["pointerenter", "focus"].forEach(function (evt) {
+      el.addEventListener(evt, warm);
+    });
     el.addEventListener("click", function (event) {
       event.preventDefault();
       open();
