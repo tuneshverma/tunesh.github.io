@@ -323,9 +323,13 @@
   transition: opacity 0.4s ease;
 }
 
-/* Applied only while travelling. In the anchored state the transform is
-   rewritten every frame to track the slot, and a permanent transition there
-   would make the button lag behind the page. */
+/* In the slot the button is positioned in document coordinates, so the page
+   scrolls it rather than script moving it frame by frame. */
+.va-fab--abs {
+  position: absolute;
+}
+
+/* Applied only while travelling between the slot and the corner. */
 .va-fab--moving {
   transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
   will-change: transform;

@@ -1004,16 +1004,12 @@
     return miniSize;
   }
 
-  // The blobs drift slowly enough that half the frames are indistinguishable,
-  // and each one skipped is a canvas the compositor does not have to re-upload.
-  var MINI_INTERVAL = 1000 / 30;
-  var lastMiniAt = 0;
-
   function miniFrame(now) {
     requestAnimationFrame(miniFrame);
+    // Paused during a scroll, but never rate-limited: throttling against
+    // requestAnimationFrame drifts between every-second and every-third
+    // frame, and uneven pacing looks worse than a cheaper animation would.
     if (scrolling) return;
-    if (now - lastMiniAt < MINI_INTERVAL) return;
-    lastMiniAt = now;
     if (!miniSize && !sizeMini()) return;
     // Hidden, or behind the call panel: nothing worth painting.
     if (document.body.classList.contains("va-open")) return;
@@ -1080,13 +1076,84 @@
     return metrics;
   }
 
+  /* Which coordinate space the button is positioned in.
+
+     While it sits in its slot the answer is the document: the slot scrolls,
+     and an absolutely positioned button scrolls with it on the compositor,
+     in perfect step and without a line of script running. Writing a fixed
+     element's transform from a scroll handler cannot do that — the scroll
+     moves on the compositor thread and the transform on the main thread, so
+     the button always lags the page by however long the frame took.
+
+     Docked in the corner it is the viewport, where it should not move at
+     all. */
+  var inDocSpace = false;
+
+  function placementFor(next, vw, vh, m, r) {
+    if (next === "docked") {
+      // Position the circle, not the whole button: the label is invisible
+      // when docked, and measuring the box would leave its empty space
+      // between the circle and the corner.
+      var gap = vw < 560 ? 18 : 24;
+      // Rendered orb centre = buttonCentre + (orbCentre - buttonCentre) * scale
+      return {
+        doc: false,
+        x: vw - gap - DOCK_DIAMETER / 2 - m.w / 2 - (m.ocx - m.w / 2) * m.dockScale,
+        y: vh - gap - DOCK_DIAMETER / 2 - m.h / 2 - (m.ocy - m.h / 2) * m.dockScale,
+        s: m.dockScale,
+      };
+    }
+    // Document coordinates do not change as the page scrolls, so this write
+    // happens once on arrival and never again while you keep scrolling.
+    return {
+      doc: true,
+      x: r.left + window.pageXOffset + r.width / 2 - m.w / 2,
+      y: r.top + window.pageYOffset + r.height / 2 - m.h / 2,
+      s: 1,
+    };
+  }
+
+  function writePlacement(p) {
+    var t =
+      "translate(" + Math.round(p.x) + "px," + Math.round(p.y) + "px) scale(" +
+      Number(p.s).toFixed(4) + ")";
+    if (p.doc !== inDocSpace) {
+      inDocSpace = p.doc;
+      fab.classList.toggle("va-fab--abs", p.doc);
+    }
+    if (t !== lastTransform) {
+      lastTransform = t;
+      fab.style.transform = t;
+    }
+  }
+
+  // Changing space moves the origin out from under the button. Restate where
+  // it already is in the new space and flush that, so the travel animates
+  // from where the eye last saw it rather than jumping first.
+  function bridgeSpace(p) {
+    if (p.doc === inDocSpace) return;
+    var m = /translate\((-?[\d.]+)px,\s*(-?[\d.]+)px\)\s*scale\(([\d.]+)\)/.exec(lastTransform);
+    if (!m) return;
+    var sx = window.pageXOffset;
+    var sy = window.pageYOffset;
+    var x = parseFloat(m[1]);
+    var y = parseFloat(m[2]);
+    fab.classList.remove("va-fab--moving");
+    writePlacement({
+      doc: p.doc,
+      x: p.doc ? x + sx : x - sx,
+      y: p.doc ? y + sy : y - sy,
+      s: parseFloat(m[3]),
+    });
+    // Force the bridged position to take effect before the animated one.
+    void fab.offsetWidth;
+  }
+
   function placeFab() {
     var vw = window.innerWidth;
     var vh = window.innerHeight;
     var m = metrics || measureFab();
     if (!m) return;
-    var w = m.w;
-    var h = m.h;
 
     var r = null;
     var next;
@@ -1103,22 +1170,7 @@
       else next = "anchored";
     }
 
-    var dockScale = m.dockScale;
-    var x;
-    var y;
-
-    if (next === "docked") {
-      // Position the circle, not the whole button: the label is invisible when
-      // docked, and measuring the box would leave its empty space between the
-      // circle and the corner.
-      var gap = vw < 560 ? 18 : 24;
-      // Rendered orb centre = buttonCentre + (orbCentre - buttonCentre) * scale
-      x = vw - gap - DOCK_DIAMETER / 2 - w / 2 - (m.ocx - w / 2) * dockScale;
-      y = vh - gap - DOCK_DIAMETER / 2 - h / 2 - (m.ocy - h / 2) * dockScale;
-    } else {
-      x = r.left + r.width / 2 - w / 2;
-      y = r.top + r.height / 2 - h / 2;
-    }
+    var p = placementFor(next, vw, vh, m, r);
 
     if (next !== travelState) {
       var wasHidden = travelState === null || travelState === "hidden";
@@ -1130,6 +1182,7 @@
       if (!firstPlacement && next !== "hidden") warm();
       fab.classList.toggle("va-fab--hidden", next === "hidden");
       fab.classList.toggle("va-fab--docked", next === "docked");
+      bridgeSpace(p);
       // Don't animate a journey from nowhere — the first appearance should
       // fade in at full size, not fly in from a stale position.
       if (!wasHidden) {
@@ -1141,16 +1194,9 @@
       }
     }
 
-    // Docked, the corner position depends on the viewport and not on the
-    // scroll, so this is the same string every frame. Writing it anyway
-    // invalidated layout and made the next frame's read synchronous.
-    var t =
-      "translate(" + Math.round(x) + "px," + Math.round(y) + "px) scale(" +
-      (next === "docked" ? dockScale.toFixed(4) : 1) + ")";
-    if (t !== lastTransform) {
-      lastTransform = t;
-      fab.style.transform = t;
-    }
+    // In either space this is the same string every frame while the state
+    // holds, so a steady scroll writes nothing at all.
+    writePlacement(p);
   }
 
   /* Once the slot is well off screen the button is simply docked, and where
