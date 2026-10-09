@@ -85,11 +85,6 @@
   var slowTimer = null;
   var waitTimer = null;
   var lastWarm = 0;
-  // The launcher repaints a canvas every frame. During a scroll that is a
-  // texture upload per frame competing with the scroll itself, for an
-  // animation nobody is looking at. Pause it until the thumb stops.
-  var scrolling = false;
-  var scrollIdle = null;
 
   /* ---------------------------------------------------------------- markup */
 
@@ -1004,12 +999,16 @@
     return miniSize;
   }
 
+  /* Painted on every frame, deliberately.
+
+     Pausing this during a scroll and rate-limiting it were both tried and
+     both reverted. The pause left an empty circle for the whole time you
+     were scrolling towards the button, which is exactly when you first see
+     it; the rate limit drifted off requestAnimationFrame's cadence and made
+     the drift stutter. What actually cost anything here was the backing
+     store, and that is handled by MAX_DPR. */
   function miniFrame(now) {
     requestAnimationFrame(miniFrame);
-    // Paused during a scroll, but never rate-limited: throttling against
-    // requestAnimationFrame drifts between every-second and every-third
-    // frame, and uneven pacing looks worse than a cheaper animation would.
-    if (scrolling) return;
     if (!miniSize && !sizeMini()) return;
     // Hidden, or behind the call panel: nothing worth painting.
     if (document.body.classList.contains("va-open")) return;
@@ -1228,17 +1227,6 @@
   }
 
   window.addEventListener("scroll", scheduleFab, { passive: true });
-  window.addEventListener(
-    "scroll",
-    function () {
-      scrolling = true;
-      clearTimeout(scrollIdle);
-      scrollIdle = setTimeout(function () {
-        scrolling = false;
-      }, 140);
-    },
-    { passive: true },
-  );
   window.addEventListener("resize", function () {
     // Everything cached above is viewport-dependent, and the docked corner
     // moves with the viewport whether or not the slot is in reach.
